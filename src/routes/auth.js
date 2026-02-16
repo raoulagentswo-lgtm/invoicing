@@ -24,7 +24,9 @@ import {
   isValidString,
   sanitizeEmail,
   sanitizeString,
-  validateName
+  validateName,
+  isValidSIRET,
+  isValidPhoneNumber
 } from '../utils/validators.js';
 import { ApiError } from '../middleware/errorHandler.js';
 import { requireAuth } from '../middleware/auth.js';
@@ -392,6 +394,177 @@ router.get('/me', requireAuth, async (req, res, next) => {
       message: 'User profile retrieved successfully',
       data: {
         user
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   PUT /api/auth/profile
+ * @desc    Update user profile (name, email, company info, phone)
+ * @access  Private
+ * @story   EPIC-5-004/005 - User Profile (View & Update)
+ * 
+ * Note: Email changes require verification via verification token
+ */
+router.put('/profile', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const {
+      firstName,
+      lastName,
+      email,
+      companyName,
+      siret,
+      phone,
+      logoUrl
+    } = req.body;
+
+    // Fetch current user
+    const currentUser = await User.findById(userId);
+    if (!currentUser) {
+      throw new ApiError(404, 'USER_NOT_FOUND', 'User not found');
+    }
+
+    const updateData = {};
+    const validationErrors = {};
+
+    // Validate and update first name
+    if (firstName !== undefined) {
+      const firstNameSanitized = sanitizeString(firstName || '');
+      const firstNameValidation = validateName(firstNameSanitized);
+      if (!firstNameValidation.isValid) {
+        validationErrors.firstName = firstNameValidation.errors;
+      } else {
+        updateData.firstName = firstNameSanitized;
+      }
+    }
+
+    // Validate and update last name
+    if (lastName !== undefined) {
+      const lastNameSanitized = sanitizeString(lastName || '');
+      const lastNameValidation = validateName(lastNameSanitized);
+      if (!lastNameValidation.isValid) {
+        validationErrors.lastName = lastNameValidation.errors;
+      } else {
+        updateData.lastName = lastNameSanitized;
+      }
+    }
+
+    // Validate and update email (requires verification if changed)
+    if (email !== undefined) {
+      const emailSanitized = sanitizeEmail(email || '');
+      if (!isValidEmail(emailSanitized)) {
+        validationErrors.email = ['Invalid email format'];
+      } else if (emailSanitized !== currentUser.email) {
+        // Check if new email already exists
+        const emailExists = await User.emailExists(emailSanitized, userId);
+        if (emailExists) {
+          throw new ApiError(400, 'EMAIL_ALREADY_EXISTS', 'Email already in use', {
+            field: 'email'
+          });
+        }
+        
+        // Generate email verification token for new email
+        const verificationToken = generateVerificationToken();
+        await User.setEmailVerificationToken(userId, verificationToken);
+
+        // Store pending email update in metadata
+        updateData.email = emailSanitized;
+        
+        // TODO: Send verification email to new address
+        // const verificationLink = `${process.env.API_URL}/verify-email?token=${verificationToken}`;
+        // await sendVerificationEmail(emailSanitized, verificationLink);
+      }
+    }
+
+    // Validate and update company name
+    if (companyName !== undefined) {
+      if (companyName === '' || companyName === null) {
+        updateData.companyName = null;
+      } else {
+        const companyNameSanitized = sanitizeString(companyName);
+        if (!isValidString(companyNameSanitized, 2, 255)) {
+          validationErrors.companyName = ['Company name must be between 2 and 255 characters'];
+        } else {
+          updateData.companyName = companyNameSanitized;
+        }
+      }
+    }
+
+    // Validate and update SIRET
+    if (siret !== undefined) {
+      if (siret === '' || siret === null) {
+        updateData.siret = null;
+      } else {
+        const siretSanitized = sanitizeString(siret);
+        if (!isValidSIRET(siretSanitized)) {
+          validationErrors.siret = ['Invalid SIRET format. SIRET must be 14 digits.'];
+        } else {
+          // Check if SIRET already exists for another user
+          const siretExists = await User.siretExists(siretSanitized, userId);
+          if (siretExists) {
+            throw new ApiError(400, 'SIRET_ALREADY_EXISTS', 'This SIRET is already registered', {
+              field: 'siret'
+            });
+          }
+          updateData.siret = siretSanitized;
+        }
+      }
+    }
+
+    // Validate and update phone
+    if (phone !== undefined) {
+      if (phone === '' || phone === null) {
+        updateData.phone = null;
+      } else {
+        const phoneSanitized = sanitizeString(phone);
+        if (!isValidPhoneNumber(phoneSanitized)) {
+          validationErrors.phone = ['Invalid phone number format'];
+        } else {
+          updateData.phone = phoneSanitized;
+        }
+      }
+    }
+
+    // Validate and update logo URL
+    if (logoUrl !== undefined) {
+      if (logoUrl === '' || logoUrl === null) {
+        updateData.logoUrl = null;
+      } else {
+        const logoUrlSanitized = sanitizeString(logoUrl);
+        if (!isValidString(logoUrlSanitized, 10, 500)) {
+          validationErrors.logoUrl = ['Invalid logo URL'];
+        } else {
+          updateData.logoUrl = logoUrlSanitized;
+        }
+      }
+    }
+
+    // If there are validation errors, return them
+    if (Object.keys(validationErrors).length > 0) {
+      throw new ApiError(400, 'VALIDATION_ERROR', 'Validation failed', {
+        fields: validationErrors
+      });
+    }
+
+    // If no updates to make
+    if (Object.keys(updateData).length === 0) {
+      throw new ApiError(400, 'NO_UPDATE_DATA', 'No fields to update provided');
+    }
+
+    // Update user
+    const updatedUser = await User.update(userId, updateData);
+
+    res.json({
+      code: 'PROFILE_UPDATED',
+      message: email && email !== currentUser.email 
+        ? 'Profile updated. Please check your email to verify the email change.'
+        : 'Profile updated successfully',
+      data: {
+        user: updatedUser
       }
     });
   } catch (error) {

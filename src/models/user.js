@@ -87,9 +87,10 @@ class User {
     if (updateData.passwordHash) cleanData.password_hash = updateData.passwordHash;
     if (updateData.emailVerified !== undefined) cleanData.email_verified = updateData.emailVerified;
     if (updateData.emailVerifiedAt) cleanData.email_verified_at = updateData.emailVerifiedAt;
-    if (updateData.companyName) cleanData.company_name = updateData.companyName;
-    if (updateData.siret) cleanData.siret = updateData.siret;
-    if (updateData.logoUrl) cleanData.logo_url = updateData.logoUrl;
+    if (updateData.companyName !== undefined) cleanData.company_name = updateData.companyName;
+    if (updateData.siret !== undefined) cleanData.siret = updateData.siret;
+    if (updateData.logoUrl !== undefined) cleanData.logo_url = updateData.logoUrl;
+    if (updateData.phone !== undefined) cleanData.company_phone = updateData.phone;
 
     cleanData.updated_at = new Date();
 
@@ -309,6 +310,26 @@ class User {
   }
 
   /**
+   * Check if SIRET exists
+   * 
+   * @param {string} siret - SIRET to check
+   * @param {string} excludeUserId - User ID to exclude (for updates)
+   * @returns {Promise<boolean>} True if SIRET exists
+   */
+  static async siretExists(siret, excludeUserId = null) {
+    let query = db(TABLE_NAME)
+      .where('siret', siret)
+      .where('status', '!=', 'deleted');
+
+    if (excludeUserId) {
+      query = query.where('id', '!=', excludeUserId);
+    }
+
+    const user = await query.first();
+    return !!user;
+  }
+
+  /**
    * Format user response (remove sensitive data)
    * 
    * @param {Object} user - Raw user object from database
@@ -325,6 +346,7 @@ class User {
       emailVerified: user.email_verified,
       companyName: user.company_name,
       siret: user.siret,
+      phone: user.company_phone,
       logoUrl: user.logo_url,
       status: user.status,
       createdAt: user.created_at,
