@@ -9,7 +9,7 @@
 export async function up(knex) {
   return knex.schema.createTable('users', (table) => {
     // Primary Key
-    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+    table.increments('id').primary();
 
     // User Information
     table.string('email', 255).unique().notNullable().index();
