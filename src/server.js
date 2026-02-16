@@ -12,6 +12,8 @@ import dotenv from 'dotenv';
 import { apiLimiter } from './middleware/rateLimit.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
+import clientRoutes from './routes/clients.js';
+import invoiceRoutes from './routes/invoices.js';
 
 // Load environment variables
 dotenv.config();
@@ -56,6 +58,8 @@ app.get('/health', (req, res) => {
 
 // ===== API ROUTES =====
 app.use('/api/auth', authRoutes);
+app.use('/api/clients', clientRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // ===== ERROR HANDLING =====
 
