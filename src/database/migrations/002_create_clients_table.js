@@ -3,7 +3,9 @@
  * Version: 2
  * Description: Creates the clients table for storing client information
  * 
- * Story: EPIC-1-001 - Create Invoice Draft
+ * Story: EPIC-2-001 - Create Client
+ * Note: Initially created as supporting component for EPIC-1-001 (Create Invoice Draft)
+ * Now completed as primary functionality for Story 7 (EPIC-2-001)
  */
 
 export async function up(knex) {

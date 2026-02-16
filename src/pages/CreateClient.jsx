@@ -1,8 +1,10 @@
 /**
  * Create Client Page Component
  * 
- * Allows users to create a new client/customer
- * Story: EPIC-1-001 - Create Invoice Draft (supporting component)
+ * Allows users to create a new client/customer with comprehensive information
+ * Story: EPIC-2-001 - Create Client
+ * Note: Initially created as supporting component for EPIC-1-001 (Create Invoice Draft)
+ * Now completed as primary functionality for Story 7 (EPIC-2-001)
  */
 
 import React, { useState } from 'react';
