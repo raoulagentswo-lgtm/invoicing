@@ -5,6 +5,9 @@ import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ClientsPage from './pages/ClientsPage'
 import ClientFormPage from './pages/ClientFormPage'
+import InvoicesListPage from './pages/InvoicesListPage'
+import InvoiceFormPage from './pages/InvoiceFormPage'
+import InvoiceDetailPage from './pages/InvoiceDetailPage'
 import DebugPage from './pages/DebugPage'
 
 function App() {
@@ -20,6 +23,10 @@ function App() {
         <Route path="/clients" element={isLoggedIn ? <ClientsPage /> : <Navigate to="/login" />} />
         <Route path="/clients/create" element={isLoggedIn ? <ClientFormPage /> : <Navigate to="/login" />} />
         <Route path="/clients/:id/edit" element={isLoggedIn ? <ClientFormPage /> : <Navigate to="/login" />} />
+        <Route path="/invoices" element={isLoggedIn ? <InvoicesListPage /> : <Navigate to="/login" />} />
+        <Route path="/invoices/create" element={isLoggedIn ? <InvoiceFormPage /> : <Navigate to="/login" />} />
+        <Route path="/invoices/:id" element={isLoggedIn ? <InvoiceDetailPage /> : <Navigate to="/login" />} />
+        <Route path="/invoices/:id/edit" element={isLoggedIn ? <InvoiceFormPage /> : <Navigate to="/login" />} />
         <Route path="/" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />} />
       </Routes>
     </BrowserRouter>
