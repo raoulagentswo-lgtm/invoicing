@@ -33,6 +33,19 @@ export default function InvoiceFormPage() {
   const taxAmount = subtotal ? (subtotal * taxRate) / 100 : 0
   const totalAmount = subtotal ? subtotal + taxAmount : 0
 
+  // Sync line items subtotal to form state
+  useEffect(() => {
+    const calculatedSubtotal = calculateSubtotal()
+    console.log('[INVOICE_FORM] Line items:', lineItems)
+    console.log('[INVOICE_FORM] Calculations:', {
+      subtotal: calculatedSubtotal,
+      taxRate,
+      taxAmount: calculatedSubtotal ? (calculatedSubtotal * taxRate) / 100 : 0,
+      totalTTC: calculatedSubtotal ? calculatedSubtotal + ((calculatedSubtotal * taxRate) / 100) : 0
+    })
+    setValue('subtotalAmount', calculatedSubtotal)
+  }, [lineItems, setValue, taxRate])
+
   useEffect(() => {
     if (!token) {
       navigate('/login')
