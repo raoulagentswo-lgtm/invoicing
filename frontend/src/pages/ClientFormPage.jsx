@@ -12,28 +12,39 @@ export default function ClientFormPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
+    console.log('ClientFormPage - Token from localStorage:', token?.substring(0, 20) + '...')
+    if (!token) {
+      navigate('/login')
+    }
+    
     if (id) {
       // Load client data for editing
+      console.log('Loading client', id, 'with token')
       axios.get(`/api/clients/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => {
-        const client = res.data
+        const client = res.data?.data || res.data
         Object.keys(client).forEach(key => setValue(key, client[key]))
-      }).catch(err => setError('Erreur lors du chargement du client'))
+      }).catch(err => {
+        console.error('Error loading client:', err)
+        setError('Erreur lors du chargement du client')
+      })
       .finally(() => setLoading(false))
     }
-  }, [id])
+  }, [id, token, navigate])
 
   const onSubmit = async (data) => {
     setLoading(true)
     try {
       if (id) {
         // Update
-        await axios.put(`/api/clients/${id}`, data, {
+        console.log('Updating client with token:', token?.substring(0, 20) + '...')
+        await axios.patch(`/api/clients/${id}`, data, {
           headers: { Authorization: `Bearer ${token}` }
         })
       } else {
         // Create
+        console.log('Creating client with token:', token?.substring(0, 20) + '...')
         await axios.post('/api/clients', data, {
           headers: { Authorization: `Bearer ${token}` }
         })

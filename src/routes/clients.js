@@ -49,8 +49,11 @@ router.post('/', async (req, res) => {
     // Validate request body
     const validatedData = createClientSchema.parse(req.body);
 
+    // Debug: log the user from token
+    console.log('POST /api/clients - User from token:', req.user);
+
     // Check if email already exists for this user
-    const existingClient = await Client.findByEmailAndUserId(req.user.id, validatedData.email);
+    const existingClient = await Client.findByEmailAndUserId(req.user.userId, validatedData.email);
     if (existingClient) {
       return res.status(400).json({
         success: false,
@@ -59,7 +62,7 @@ router.post('/', async (req, res) => {
     }
 
     // Create client
-    const client = await Client.create(req.user.id, validatedData);
+    const client = await Client.create(req.user.userId, validatedData);
 
     res.status(201).json({
       success: true,
@@ -122,7 +125,7 @@ router.get('/', async (req, res) => {
       sortOrder
     };
 
-    const result = await Client.findByUserId(req.user.id, options);
+    const result = await Client.findByUserId(req.user.userId, options);
 
     res.json({
       success: true,
@@ -167,7 +170,7 @@ router.get('/:clientId', async (req, res) => {
     }
 
     // Check if client belongs to authenticated user
-    if (client.userId !== req.user.id) {
+    if (client.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -208,7 +211,7 @@ router.patch('/:clientId', async (req, res) => {
       });
     }
 
-    if (client.userId !== req.user.id) {
+    if (client.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -217,7 +220,7 @@ router.patch('/:clientId', async (req, res) => {
 
     // If changing email, check if it's already used
     if (validatedData.email && validatedData.email !== client.email) {
-      const existingClient = await Client.findByEmailAndUserId(req.user.id, validatedData.email);
+      const existingClient = await Client.findByEmailAndUserId(req.user.userId, validatedData.email);
       if (existingClient) {
         return res.status(400).json({
           success: false,
@@ -272,7 +275,7 @@ router.delete('/:clientId', async (req, res) => {
       });
     }
 
-    if (client.userId !== req.user.id) {
+    if (client.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'

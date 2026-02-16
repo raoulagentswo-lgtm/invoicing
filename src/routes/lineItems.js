@@ -54,7 +54,7 @@ const verifyInvoiceOwnership = async (req, res, next) => {
     }
 
     // Check if invoice belongs to authenticated user
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'

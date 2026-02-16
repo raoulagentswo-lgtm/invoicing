@@ -71,7 +71,7 @@ router.post('/', async (req, res) => {
 
     // Check if client exists and belongs to user
     const client = await Client.findById(validatedData.clientId);
-    if (!client || client.userId !== req.user.id) {
+    if (!client || client.userId !== req.user.userId) {
       return res.status(404).json({
         success: false,
         message: 'Client not found'
@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
     }
 
     // Create invoice
-    const invoice = await Invoice.create(req.user.id, {
+    const invoice = await Invoice.create(req.user.userId, {
       clientId: validatedData.clientId,
       invoiceDate: invoiceDate,
       dueDate: dueDate,
@@ -152,7 +152,7 @@ router.get('/', async (req, res) => {
       offset: parseInt(offset, 10)
     };
 
-    const invoices = await Invoice.findByUserId(req.user.id, options);
+    const invoices = await Invoice.findByUserId(req.user.userId, options);
 
     res.json({
       success: true,
@@ -190,7 +190,7 @@ router.get('/:invoiceId', async (req, res) => {
     }
 
     // Check if invoice belongs to authenticated user
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -237,7 +237,7 @@ router.patch('/:invoiceId', async (req, res) => {
       });
     }
 
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -247,7 +247,7 @@ router.patch('/:invoiceId', async (req, res) => {
     // If changing client, verify it belongs to user
     if (validatedData.clientId && validatedData.clientId !== invoice.clientId) {
       const newClient = await Client.findById(validatedData.clientId);
-      if (!newClient || newClient.userId !== req.user.id) {
+      if (!newClient || newClient.userId !== req.user.userId) {
         return res.status(404).json({
           success: false,
           message: 'Client not found'
@@ -318,7 +318,7 @@ router.delete('/:invoiceId', async (req, res) => {
       });
     }
 
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -364,7 +364,7 @@ router.patch('/:invoiceId/status', async (req, res) => {
       });
     }
 
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -375,7 +375,7 @@ router.patch('/:invoiceId/status', async (req, res) => {
     const result = await Invoice.changeStatus(
       invoiceId,
       validatedData.status,
-      req.user.id,
+      req.user.userId,
       {
         reason: validatedData.reason,
         metadata: validatedData.metadata || {}
@@ -442,7 +442,7 @@ router.get('/:invoiceId/status-history', async (req, res) => {
       });
     }
 
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -488,7 +488,7 @@ router.get('/:invoiceId/status-history', async (req, res) => {
 router.post('/auto-update-overdue', async (req, res) => {
   try {
     // Auto-update overdue invoices for authenticated user
-    const count = await Invoice.autoUpdateOverdueInvoices(req.user.id);
+    const count = await Invoice.autoUpdateOverdueInvoices(req.user.userId);
 
     res.json({
       success: true,
@@ -526,7 +526,7 @@ router.post('/:invoiceId/pdf', async (req, res) => {
       });
     }
 
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -544,7 +544,7 @@ router.post('/:invoiceId/pdf', async (req, res) => {
 
     // User data (for branding)
     const user = {
-      id: req.user.id,
+      id: req.user.userId,
       companyName: req.user.companyName || 'My Company',
       bankName: req.user.bankName || null,
       iban: req.user.iban || null
@@ -598,7 +598,7 @@ router.post('/:invoiceId/send', async (req, res) => {
       });
     }
 
-    if (invoice.userId !== req.user.id) {
+    if (invoice.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized'
@@ -616,7 +616,7 @@ router.post('/:invoiceId/send', async (req, res) => {
 
     // User data (for branding)
     const user = {
-      id: req.user.id,
+      id: req.user.userId,
       companyName: req.user.companyName || 'My Company',
       bankName: req.user.bankName || null,
       iban: req.user.iban || null

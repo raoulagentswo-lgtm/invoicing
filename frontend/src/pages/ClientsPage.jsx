@@ -10,6 +10,10 @@ export default function ClientsPage() {
   const token = localStorage.getItem('token')
 
   useEffect(() => {
+    console.log('ClientsPage - Token from localStorage:', token?.substring(0, 20) + '...')
+    if (!token) {
+      navigate('/login')
+    }
     fetchClients()
   }, [])
 
@@ -18,10 +22,11 @@ export default function ClientsPage() {
       const res = await axios.get('/api/clients', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setClients(res.data.clients || res.data || [])
+      console.log('Clients API Response:', res.data)
+      setClients(res.data?.data || [])
     } catch (err) {
       setError('Erreur lors de la récupération des clients')
-      console.error(err)
+      console.error('Error fetching clients:', err)
     } finally {
       setLoading(false)
     }
