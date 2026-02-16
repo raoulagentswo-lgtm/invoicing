@@ -6,6 +6,7 @@
  */
 
 import db from '../database/db.js';
+import LineItem from './lineItem.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const TABLE_NAME = 'invoices';
@@ -84,15 +85,26 @@ class Invoice {
    * Find invoice by ID
    * 
    * @param {string} invoiceId - Invoice ID
+   * @param {boolean} includeLineItems - Whether to include line items
    * @returns {Promise<Object|null>} Invoice object or null
    */
-  static async findById(invoiceId) {
+  static async findById(invoiceId, includeLineItems = false) {
     const invoice = await db(TABLE_NAME)
       .where('id', invoiceId)
       .where('deleted_at', null)
       .first();
 
-    return invoice ? this.formatInvoiceResponse(invoice) : null;
+    if (!invoice) return null;
+
+    const formattedInvoice = this.formatInvoiceResponse(invoice);
+
+    // Include line items if requested
+    if (includeLineItems) {
+      formattedInvoice.lineItems = await LineItem.findByInvoiceId(invoiceId);
+      formattedInvoice.totals = await LineItem.calculateInvoiceTotals(invoiceId);
+    }
+
+    return formattedInvoice;
   }
 
   /**

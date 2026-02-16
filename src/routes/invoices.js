@@ -168,8 +168,9 @@ router.get('/', async (req, res) => {
 router.get('/:invoiceId', async (req, res) => {
   try {
     const { invoiceId } = req.params;
+    const { includeLineItems = true } = req.query;
 
-    const invoice = await Invoice.findById(invoiceId);
+    const invoice = await Invoice.findById(invoiceId, includeLineItems === 'true' || includeLineItems === true);
 
     if (!invoice) {
       return res.status(404).json({
