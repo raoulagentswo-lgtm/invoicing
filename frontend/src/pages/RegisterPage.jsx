@@ -14,10 +14,10 @@ const schema = z.object({
     .regex(/[A-Z]/, 'Au moins 1 majuscule')
     .regex(/[0-9]/, 'Au moins 1 chiffre')
     .regex(/[!@#$%^&*]/, 'Au moins 1 caractère spécial'),
-  confirmPassword: z.string().min(1, 'Requis'),
-}).refine((data) => data.password.trim() === data.confirmPassword.trim(), {
+  passwordConfirmation: z.string().min(1, 'Requis'),
+}).refine((data) => data.password.trim() === data.passwordConfirmation.trim(), {
   message: "Les mots de passe ne correspondent pas",
-  path: ["confirmPassword"],
+  path: ["passwordConfirmation"],
 })
 
 export default function RegisterPage() {
@@ -34,9 +34,9 @@ export default function RegisterPage() {
       firstName: data.firstName,
       lastName: data.lastName,
       password: `[${data.password ? data.password.length : 0} chars]`,
-      confirmPassword: `[${data.confirmPassword ? data.confirmPassword.length : 0} chars]`,
-      passwordMatch: data.password === data.confirmPassword,
-      passwordTrimMatch: data.password?.trim() === data.confirmPassword?.trim(),
+      passwordConfirmation: `[${data.passwordConfirmation ? data.passwordConfirmation.length : 0} chars]`,
+      passwordMatch: data.password === data.passwordConfirmation,
+      passwordTrimMatch: data.password?.trim() === data.passwordConfirmation?.trim(),
     })
 
     setLoading(true)
@@ -110,8 +110,8 @@ export default function RegisterPage() {
 
         <div>
           <label style={labelStyle}>Confirmer mot de passe</label>
-          <input {...register('confirmPassword')} type="password" placeholder="Confirmer mot de passe" style={inputStyle} />
-          {errors.confirmPassword && <p style={errorStyle}>{errors.confirmPassword.message}</p>}
+          <input {...register('passwordConfirmation')} type="password" placeholder="Confirmer mot de passe" style={inputStyle} />
+          {errors.passwordConfirmation && <p style={errorStyle}>{errors.passwordConfirmation.message}</p>}
         </div>
 
         <button type="submit" disabled={loading} style={{ width: '100%', padding: '10px', marginTop: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>{loading ? 'Inscription...' : 'S\'inscrire'}</button>
