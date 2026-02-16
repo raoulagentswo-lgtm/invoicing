@@ -14,6 +14,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
 import clientRoutes from './routes/clients.js';
 import invoiceRoutes from './routes/invoices.js';
+import lineItemRoutes from './routes/lineItems.js';
 
 // Load environment variables
 dotenv.config();
@@ -60,6 +61,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/invoices', lineItemRoutes);
 
 // ===== ERROR HANDLING =====
 
