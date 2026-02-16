@@ -29,18 +29,28 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
 
   const onSubmit = async (data) => {
-    setLoading(true)
-    console.log('Form data:', {
-      password: data.password,
-      confirmPassword: data.confirmPassword,
-      passwordTrimmed: data.password.trim(),
-      confirmPasswordTrimmed: data.confirmPassword.trim(),
-      match: data.password.trim() === data.confirmPassword.trim(),
+    console.log('[REGISTER] Form data received:', {
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      password: `[${data.password ? data.password.length : 0} chars]`,
+      confirmPassword: `[${data.confirmPassword ? data.confirmPassword.length : 0} chars]`,
+      passwordMatch: data.password === data.confirmPassword,
+      passwordTrimMatch: data.password?.trim() === data.confirmPassword?.trim(),
     })
+
+    setLoading(true)
     try {
-      await axios.post('/api/auth/register', data)
+      const response = await axios.post('/api/auth/register', data)
+      console.log('[REGISTER] Success:', response.status, response.data)
       navigate('/login?registered=true')
     } catch (err) {
+      console.error('[REGISTER] Error:', {
+        status: err.response?.status,
+        code: err.response?.data?.code,
+        message: err.response?.data?.message,
+        details: err.response?.data?.details,
+      })
       setError(err.response?.data?.message || 'Erreur')
     }
     setLoading(false)

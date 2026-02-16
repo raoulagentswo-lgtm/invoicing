@@ -48,6 +48,16 @@ router.post('/register', registrationLimiter, async (req, res, next) => {
   try {
     const { email, firstName, lastName, password, passwordConfirmation } = req.body;
 
+    console.log('[REGISTER] Request received:', {
+      email,
+      firstName,
+      lastName,
+      password: password ? `[${password.length} chars]` : null,
+      passwordConfirmation: passwordConfirmation ? `[${passwordConfirmation.length} chars]` : null,
+      passwordMatch: password === passwordConfirmation,
+      passwordTrimMatch: password?.trim?.() === passwordConfirmation?.trim?.(),
+    });
+
     // Validation: Email
     const emailSanitized = sanitizeEmail(email || '');
     if (!isValidEmail(emailSanitized)) {
@@ -88,6 +98,12 @@ router.post('/register', registrationLimiter, async (req, res, next) => {
 
     // Validation: Password confirmation
     if (password !== passwordConfirmation) {
+      console.error('[REGISTER] Password mismatch detected:', {
+        password: password ? `[${password.length} chars]` : null,
+        passwordConfirmation: passwordConfirmation ? `[${passwordConfirmation.length} chars]` : null,
+        passwordMatch: password === passwordConfirmation,
+        passwordTrimMatch: password?.trim?.() === passwordConfirmation?.trim?.(),
+      });
       throw new ApiError(400, 'PASSWORD_MISMATCH', 'Passwords do not match', {
         field: 'passwordConfirmation'
       });
