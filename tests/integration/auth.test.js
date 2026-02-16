@@ -246,6 +246,35 @@ describe('Authentication Routes', () => {
       expect(response.body.code).toBe('LOGIN_SUCCESS');
       expect(response.body.data.accessToken).toBeDefined();
       expect(response.body.data.user).toBeDefined();
+      expect(response.body.data.expiresIn).toBe('30d');
+    });
+
+    it('should return user info in response', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'SecurePassword123!'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.user.email).toBe('test@example.com');
+      expect(response.body.data.user.firstName).toBe('John');
+      expect(response.body.data.user.lastName).toBe('Doe');
+      expect(response.body.data.user.id).toBeDefined();
+    });
+
+    it('should not include password hash in response', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'SecurePassword123!'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.user.password_hash).toBeUndefined();
+      expect(response.body.data.user.passwordHash).toBeUndefined();
     });
 
     it('should fail with incorrect password', async () => {
@@ -272,9 +301,52 @@ describe('Authentication Routes', () => {
       expect(response.body.code).toBe('INVALID_CREDENTIALS');
     });
 
-    it('should lock account after failed attempts', async () => {
-      // Make 10 failed login attempts
-      for (let i = 0; i < 10; i++) {
+    it('should provide clear error messages (email not found vs wrong password)', async () => {
+      // Both should return same message for security (timing attacks prevention)
+      const response1 = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'nonexistent@example.com',
+          password: 'SomePassword123!'
+        });
+
+      const response2 = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'WrongPassword123!'
+        });
+
+      expect(response1.body.code).toBe('INVALID_CREDENTIALS');
+      expect(response2.body.code).toBe('INVALID_CREDENTIALS');
+    });
+
+    it('should validate email format', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'invalid-email',
+          password: 'SecurePassword123!'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.code).toBe('INVALID_EMAIL');
+    });
+
+    it('should require password field', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com'
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body.code).toBe('PASSWORD_REQUIRED');
+    });
+
+    it('should lock account after 5 failed attempts', async () => {
+      // Make 5 failed login attempts
+      for (let i = 0; i < 5; i++) {
         await request(app)
           .post('/api/auth/login')
           .send({
@@ -283,7 +355,7 @@ describe('Authentication Routes', () => {
           });
       }
 
-      // Try to login with correct password
+      // 6th attempt should be locked
       const response = await request(app)
         .post('/api/auth/login')
         .send({
@@ -293,6 +365,149 @@ describe('Authentication Routes', () => {
 
       expect(response.status).toBe(429);
       expect(response.body.code).toBe('ACCOUNT_LOCKED');
+    });
+
+    it('should clear failed login attempts on successful login', async () => {
+      // Make 2 failed attempts
+      for (let i = 0; i < 2; i++) {
+        await request(app)
+          .post('/api/auth/login')
+          .send({
+            email: 'test@example.com',
+            password: 'WrongPassword123!'
+          });
+      }
+
+      // Successful login should clear attempts
+      const successResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'SecurePassword123!'
+        });
+
+      expect(successResponse.status).toBe(200);
+
+      // Should be able to login again without hitting rate limit
+      const nextResponse = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'SecurePassword123!'
+        });
+
+      expect(nextResponse.status).toBe(200);
+    });
+
+    it('should enforce rate limiting (10 requests/15 minutes)', async () => {
+      // Make 11 login attempts
+      const promises = [];
+      for (let i = 0; i < 11; i++) {
+        promises.push(
+          request(app)
+            .post('/api/auth/login')
+            .send({
+              email: 'test@example.com',
+              password: 'SecurePassword123!'
+            })
+        );
+      }
+
+      const responses = await Promise.all(promises);
+
+      // Some should succeed, last one should be rate limited
+      const rateLimitedCount = responses.filter(r => r.status === 429 && r.body.code === 'TOO_MANY_REQUESTS').length;
+
+      expect(rateLimitedCount).toBeGreaterThan(0);
+    });
+
+    it('should update last login timestamp on successful login', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'SecurePassword123!'
+        });
+
+      expect(response.status).toBe(200);
+
+      // Verify last_login_at was updated
+      const user = await db('users')
+        .where('email', 'test@example.com')
+        .first();
+
+      expect(user.last_login_at).toBeDefined();
+    });
+
+    it('should require valid email format', async () => {
+      const testCases = [
+        'not-an-email',
+        '@example.com',
+        'user@',
+        'user name@example.com',
+        ''
+      ];
+
+      for (const email of testCases) {
+        const response = await request(app)
+          .post('/api/auth/login')
+          .send({
+            email,
+            password: 'SecurePassword123!'
+          });
+
+        expect(response.status).toBe(400);
+      }
+    });
+
+    it('should handle case-insensitive email lookup', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'TEST@EXAMPLE.COM',
+          password: 'SecurePassword123!'
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body.code).toBe('LOGIN_SUCCESS');
+    });
+
+    it('should return 30-day expiring JWT token', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'SecurePassword123!'
+        });
+
+      expect(response.status).toBe(200);
+      const token = response.body.data.accessToken;
+
+      // Verify JWT format (should have 3 parts separated by dots)
+      const parts = token.split('.');
+      expect(parts.length).toBe(3);
+
+      // Decode and check expiration
+      try {
+        const base64Url = parts[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        const payload = JSON.parse(jsonPayload);
+
+        // Token should expire in approximately 30 days
+        const expiresIn = (payload.exp * 1000) - Date.now();
+        const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+
+        // Allow some margin (±1 minute)
+        expect(Math.abs(expiresIn - thirtyDaysMs)).toBeLessThan(60000);
+      } catch (err) {
+        throw new Error('Failed to decode JWT token: ' + err.message);
+      }
     });
   });
 
