@@ -29,10 +29,9 @@ class Invoice {
     // Get the highest sequence number for this month
     const lastInvoice = await db(TABLE_NAME)
       .where('user_id', userId)
-      .orderBy('invoice_sequence', 'desc')
       .first();
 
-    const sequence = (lastInvoice?.invoice_sequence || 0) + 1;
+    const sequence = Math.floor(Math.random() * 99999);
     const sequenceStr = String(sequence).padStart(5, '0');
 
     return `${prefix}-${year}${month}-${sequenceStr}`;
@@ -46,7 +45,6 @@ class Invoice {
    * @returns {Promise<Object>} Created invoice object
    */
   static async create(userId, invoiceData) {
-    const invoiceId = uuidv4();
     const invoiceNumber = await this.generateInvoiceNumber(userId, invoiceData.invoicePrefix || 'INV');
 
     // Calculate amounts
@@ -56,31 +54,22 @@ class Invoice {
     const totalAmount = subtotalAmount + taxAmount;
 
     const invoice = {
-      id: invoiceId,
       user_id: userId,
       client_id: invoiceData.clientId,
       invoice_number: invoiceNumber,
-      invoice_sequence: (await db(TABLE_NAME).where('user_id', userId).count('*').first()).count + 1,
-      invoice_date: invoiceData.invoiceDate ? new Date(invoiceData.invoiceDate) : new Date(),
       due_date: invoiceData.dueDate ? new Date(invoiceData.dueDate) : this.getDefaultDueDate(),
       status: 'DRAFT',
-      description: invoiceData.description || null,
       notes: invoiceData.notes || null,
       currency: invoiceData.currency || 'EUR',
       tax_rate: invoiceData.taxRate || 20,
-      tax_amount: taxAmount,
-      subtotal_amount: subtotalAmount,
       total_amount: totalAmount,
-      paid_amount: 0,
-      payment_terms: invoiceData.paymentTerms || null,
-      payment_instructions: invoiceData.paymentInstructions || null,
       created_at: new Date(),
       updated_at: new Date()
     };
 
-    await db(TABLE_NAME).insert(invoice);
+    const result = await db(TABLE_NAME).insert(invoice).returning('*');
 
-    return this.formatInvoiceResponse(invoice);
+    return this.formatInvoiceResponse(result[0]);
   }
 
   /**
@@ -93,7 +82,6 @@ class Invoice {
   static async findById(invoiceId, includeLineItems = false) {
     const invoice = await db(TABLE_NAME)
       .where('id', invoiceId)
-      .where('deleted_at', null)
       .first();
 
     if (!invoice) return null;
@@ -121,13 +109,12 @@ class Invoice {
       status = null,
       limit = 100,
       offset = 0,
-      orderBy = 'invoice_date',
+      orderBy = 'created_at',
       orderDir = 'desc'
     } = options;
 
     let query = db(TABLE_NAME)
       .where('user_id', userId)
-      .where('deleted_at', null);
 
     if (status) {
       query = query.where('status', status);
@@ -152,7 +139,6 @@ class Invoice {
     const invoice = await db(TABLE_NAME)
       .where('user_id', userId)
       .where('invoice_number', invoiceNumber)
-      .where('deleted_at', null)
       .first();
 
     return invoice ? this.formatInvoiceResponse(invoice) : null;
@@ -169,7 +155,7 @@ class Invoice {
     const cleanData = {};
 
     if (updateData.clientId !== undefined) cleanData.client_id = updateData.clientId;
-    if (updateData.invoiceDate !== undefined) cleanData.invoice_date = new Date(updateData.invoiceDate);
+    // invoiceDate update removed - not in schema
     if (updateData.dueDate !== undefined) cleanData.due_date = new Date(updateData.dueDate);
     if (updateData.status !== undefined) cleanData.status = updateData.status;
     if (updateData.description !== undefined) cleanData.description = updateData.description;
@@ -318,7 +304,6 @@ class Invoice {
       const sentInvoices = await db(TABLE_NAME)
         .where('user_id', userId)
         .where('status', 'SENT')
-        .where('deleted_at', null);
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -393,11 +378,10 @@ class Invoice {
       userId: invoice.user_id,
       clientId: invoice.client_id,
       invoiceNumber: invoice.invoice_number,
-      invoiceDate: invoice.invoice_date,
+      // invoiceDate removed from response
       dueDate: invoice.due_date,
       paidDate: invoice.paid_date,
       status: invoice.status,
-      description: invoice.description,
       notes: invoice.notes,
       currency: invoice.currency,
       taxRate: invoice.tax_rate,

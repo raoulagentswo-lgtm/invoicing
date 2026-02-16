@@ -20,7 +20,7 @@ const router = express.Router();
 // ===== VALIDATION SCHEMAS =====
 
 const createInvoiceSchema = z.object({
-  clientId: z.string().uuid('Invalid client ID'),
+  clientId: z.number().int().positive('Invalid client ID'),
   invoiceDate: z.string().datetime().optional(),
   dueDate: z.string().datetime().optional(),
   description: z.string().max(1000).optional().nullable(),
@@ -34,7 +34,7 @@ const createInvoiceSchema = z.object({
 });
 
 const updateInvoiceSchema = z.object({
-  clientId: z.string().uuid().optional(),
+  clientId: z.number().int().positive().optional(),
   invoiceDate: z.string().datetime().optional(),
   dueDate: z.string().datetime().optional(),
   description: z.string().max(1000).optional().nullable(),
