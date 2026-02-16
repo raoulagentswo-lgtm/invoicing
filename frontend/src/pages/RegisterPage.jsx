@@ -14,8 +14,8 @@ const schema = z.object({
     .regex(/[A-Z]/, 'Au moins 1 majuscule')
     .regex(/[0-9]/, 'Au moins 1 chiffre')
     .regex(/[!@#$%^&*]/, 'Au moins 1 caractère spécial'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
+  confirmPassword: z.string().min(1, 'Requis'),
+}).refine((data) => data.password.trim() === data.confirmPassword.trim(), {
   message: "Les mots de passe ne correspondent pas",
   path: ["confirmPassword"],
 })
@@ -30,6 +30,13 @@ export default function RegisterPage() {
 
   const onSubmit = async (data) => {
     setLoading(true)
+    console.log('Form data:', {
+      password: data.password,
+      confirmPassword: data.confirmPassword,
+      passwordTrimmed: data.password.trim(),
+      confirmPasswordTrimmed: data.confirmPassword.trim(),
+      match: data.password.trim() === data.confirmPassword.trim(),
+    })
     try {
       await axios.post('/api/auth/register', data)
       navigate('/login?registered=true')
