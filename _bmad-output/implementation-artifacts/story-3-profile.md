@@ -300,7 +300,7 @@ npm test:ci
 
 ## Git Commit
 
-**Commit Hash:** [Latest commit hash]  
+**Commit Hash:** 74e317e  
 **Branch:** feature/EPIC-5-001-user-registration  
 **Files Changed:** 8  
 **Insertions:** +1520  
@@ -336,4 +336,3 @@ npm test:ci
 **Estimated Effort:** 5 story points  
 **Actual Effort:** ~5-6 story points  
 **Status:** ✅ READY FOR REVIEW AND MERGE
-
