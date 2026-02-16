@@ -12,6 +12,8 @@ import Invoice from '../models/invoice.js';
 import Client from '../models/client.js';
 import InvoiceStatusHistory from '../models/invoiceStatusHistory.js';
 import { getAllowedNextStatuses } from '../utils/statusTransitions.js';
+import { generateInvoicePDF } from '../services/pdfService.js';
+import { sendInvoiceEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -500,6 +502,154 @@ router.post('/auto-update-overdue', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to auto-update overdue invoices'
+    });
+  }
+});
+
+/**
+ * POST /api/invoices/:invoiceId/pdf
+ * Generate PDF invoice
+ * 
+ * Story: EPIC-4-001 - Generate PDF
+ */
+router.post('/:invoiceId/pdf', async (req, res) => {
+  try {
+    const { invoiceId } = req.params;
+
+    // Check if invoice exists and belongs to user
+    const invoice = await Invoice.findById(invoiceId, true);
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invoice not found'
+      });
+    }
+
+    if (invoice.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    // Fetch client information
+    const client = await Client.findById(invoice.clientId);
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+
+    // User data (for branding)
+    const user = {
+      id: req.user.id,
+      companyName: req.user.companyName || 'My Company',
+      bankName: req.user.bankName || null,
+      iban: req.user.iban || null
+    };
+
+    // Line items
+    const lineItems = invoice.lineItems || [];
+
+    // Generate PDF
+    const pdfBuffer = await generateInvoicePDF(invoice, client, user, lineItems);
+
+    // Return PDF as attachment
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="invoice-${invoice.id}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate PDF'
+    });
+  }
+});
+
+/**
+ * POST /api/invoices/:invoiceId/send
+ * Send invoice via email
+ * 
+ * Story: EPIC-4-001 - Generate PDF
+ */
+router.post('/:invoiceId/send', async (req, res) => {
+  try {
+    const { invoiceId } = req.params;
+    const { recipientEmail } = req.body;
+
+    // Validate email
+    if (!recipientEmail || typeof recipientEmail !== 'string' || !recipientEmail.includes('@')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid recipient email is required'
+      });
+    }
+
+    // Check if invoice exists and belongs to user
+    const invoice = await Invoice.findById(invoiceId, true);
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invoice not found'
+      });
+    }
+
+    if (invoice.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    // Fetch client information
+    const client = await Client.findById(invoice.clientId);
+    if (!client) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found'
+      });
+    }
+
+    // User data (for branding)
+    const user = {
+      id: req.user.id,
+      companyName: req.user.companyName || 'My Company',
+      bankName: req.user.bankName || null,
+      iban: req.user.iban || null
+    };
+
+    // Line items
+    const lineItems = invoice.lineItems || [];
+
+    // Generate PDF
+    const pdfBuffer = await generateInvoicePDF(invoice, client, user, lineItems);
+
+    // Send email (stub for now)
+    const emailResult = await sendInvoiceEmail({
+      recipientEmail,
+      invoiceNumber: invoice.invoiceNumber || `INV-${invoice.id.substring(0, 8)}`,
+      pdfBuffer,
+      senderEmail: req.user.email
+    });
+
+    res.json({
+      success: emailResult.success,
+      message: emailResult.message,
+      data: {
+        recipientEmail,
+        invoiceId,
+        status: emailResult.success ? 'sent' : 'failed'
+      }
+    });
+  } catch (error) {
+    console.error('Error sending invoice email:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send invoice email'
     });
   }
 });

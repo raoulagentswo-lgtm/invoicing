@@ -91,6 +91,9 @@ class User {
     if (updateData.siret !== undefined) cleanData.siret = updateData.siret;
     if (updateData.logoUrl !== undefined) cleanData.logo_url = updateData.logoUrl;
     if (updateData.phone !== undefined) cleanData.company_phone = updateData.phone;
+    if (updateData.bankName !== undefined) cleanData.bank_name = updateData.bankName;
+    if (updateData.iban !== undefined) cleanData.iban = updateData.iban;
+    if (updateData.bic !== undefined) cleanData.bic = updateData.bic;
 
     cleanData.updated_at = new Date();
 
@@ -348,6 +351,9 @@ class User {
       siret: user.siret,
       phone: user.company_phone,
       logoUrl: user.logo_url,
+      bankName: user.bank_name,
+      iban: user.iban,
+      bic: user.bic,
       status: user.status,
       createdAt: user.created_at,
       updatedAt: user.updated_at,
