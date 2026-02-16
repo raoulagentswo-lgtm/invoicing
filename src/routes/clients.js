@@ -88,26 +88,56 @@ router.post('/', async (req, res) => {
 
 /**
  * GET /api/clients
- * Get all clients for authenticated user
+ * Get all clients for authenticated user with pagination, search, and sorting
+ * 
+ * Query parameters:
+ * - limit: Number of clients per page (default: 20, max: 100)
+ * - offset: Pagination offset (default: 0)
+ * - search: Search term (searches in name, email, phone)
+ * - sortBy: Field to sort by (name, created_at, updated_at; default: name)
+ * - sortOrder: Sort order (asc, desc; default: asc)
+ * - status: Filter by status (active, inactive, archived; default: active)
  */
 router.get('/', async (req, res) => {
   try {
-    const { status = 'active', limit = 100, offset = 0 } = req.query;
+    const {
+      status = 'active',
+      limit = '20',
+      offset = '0',
+      search = '',
+      sortBy = 'name',
+      sortOrder = 'asc'
+    } = req.query;
+
+    // Parse and validate numeric values
+    const parsedLimit = Math.min(parseInt(limit, 10) || 20, 100);
+    const parsedOffset = Math.max(parseInt(offset, 10) || 0, 0);
 
     const options = {
       status,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10)
+      limit: parsedLimit,
+      offset: parsedOffset,
+      search: String(search).trim(),
+      sortBy,
+      sortOrder
     };
 
-    const clients = await Client.findByUserId(req.user.id, options);
+    const result = await Client.findByUserId(req.user.id, options);
 
     res.json({
       success: true,
-      data: clients,
+      data: result.clients,
       pagination: {
-        limit: options.limit,
-        offset: options.offset
+        limit: parsedLimit,
+        offset: parsedOffset,
+        total: result.total,
+        pages: Math.ceil(result.total / parsedLimit)
+      },
+      filters: {
+        search: options.search,
+        sortBy: options.sortBy,
+        sortOrder: options.sortOrder,
+        status: options.status
       }
     });
   } catch (error) {

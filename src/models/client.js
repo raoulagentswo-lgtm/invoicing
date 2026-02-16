@@ -64,18 +64,28 @@ class Client {
   }
 
   /**
-   * Find all clients for a user
+   * Find all clients for a user with advanced filtering, sorting, and pagination
    * 
    * @param {string} userId - User ID
    * @param {Object} options - Query options
-   * @returns {Promise<Array>} Array of client objects
+   * @returns {Promise<Object>} { clients: [], total: number }
    */
   static async findByUserId(userId, options = {}) {
     const {
       status = 'active',
-      limit = 100,
-      offset = 0
+      limit = 20,
+      offset = 0,
+      search = '',
+      sortBy = 'name',
+      sortOrder = 'asc'
     } = options;
+
+    // Validate sortBy and sortOrder
+    const validSortFields = ['name', 'created_at', 'updated_at'];
+    const validSortOrders = ['asc', 'desc'];
+    
+    const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'name';
+    const finalSortOrder = validSortOrders.includes(sortOrder) ? sortOrder : 'asc';
 
     let query = db(TABLE_NAME)
       .where('user_id', userId);
@@ -84,12 +94,31 @@ class Client {
       query = query.where('status', status);
     }
 
+    // Add search filter
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim()}%`;
+      query = query.where(function() {
+        this
+          .whereRaw('name ILIKE ?', [searchTerm])
+          .orWhereRaw('email ILIKE ?', [searchTerm])
+          .orWhereRaw('phone ILIKE ?', [searchTerm]);
+      });
+    }
+
+    // Get total count before pagination
+    const countResult = await query.clone().count('* as total').first();
+    const total = parseInt(countResult.total, 10);
+
+    // Get paginated results with sorting
     const clients = await query
-      .orderBy('name', 'asc')
+      .orderBy(finalSortBy, finalSortOrder)
       .limit(limit)
       .offset(offset);
 
-    return clients.map(client => this.formatClientResponse(client));
+    return {
+      clients: clients.map(client => this.formatClientResponse(client)),
+      total: total
+    };
   }
 
   /**
