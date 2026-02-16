@@ -40,6 +40,9 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Rate limiting
 app.use('/api/', apiLimiter);
 
+// ===== STATIC FILES - React SPA =====
+app.use(express.static('public'));
+
 // ===== REQUEST LOGGING (Development) =====
 if (NODE_ENV === 'development') {
   app.use((req, res, next) => {
@@ -62,6 +65,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/invoices', lineItemRoutes);
+
+// ===== SPA FALLBACK - React Router =====
+// Serve index.html for all unmatched routes (React Router handles client-side routing)
+app.get('*', (req, res) => {
+  res.sendFile(new URL('../public/index.html', import.meta.url));
+});
 
 // ===== ERROR HANDLING =====
 
