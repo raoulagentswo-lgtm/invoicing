@@ -107,3 +107,9 @@ export function getCurrentUser(req) {
 export function getCurrentUserId(req) {
   return req.user?.userId || req.user?.id || null;
 }
+
+/**
+ * Alias for requireAuth (for backwards compatibility)
+ * @deprecated Use requireAuth instead
+ */
+export const authenticateToken = requireAuth;
