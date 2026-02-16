@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
+import ClientsPage from './pages/ClientsPage'
+import ClientFormPage from './pages/ClientFormPage'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'))
@@ -13,6 +15,9 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/dashboard" element={isLoggedIn ? <DashboardPage /> : <Navigate to="/login" />} />
+        <Route path="/clients" element={isLoggedIn ? <ClientsPage /> : <Navigate to="/login" />} />
+        <Route path="/clients/create" element={isLoggedIn ? <ClientFormPage /> : <Navigate to="/login" />} />
+        <Route path="/clients/:id/edit" element={isLoggedIn ? <ClientFormPage /> : <Navigate to="/login" />} />
         <Route path="/" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />} />
       </Routes>
     </BrowserRouter>
