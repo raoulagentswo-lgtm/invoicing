@@ -8,7 +8,6 @@
  */
 
 import db from '../database/db.js';
-import { v4 as uuidv4 } from 'uuid';
 
 const TABLE_NAME = 'clients';
 
@@ -21,10 +20,7 @@ class Client {
    * @returns {Promise<Object>} Created client object
    */
   static async create(userId, clientData) {
-    const clientId = uuidv4();
-    
-    const client = {
-      id: clientId,
+    const clientData_db = {
       user_id: userId,
       name: clientData.name,
       email: clientData.email,
@@ -43,9 +39,10 @@ class Client {
       updated_at: new Date()
     };
 
-    await db(TABLE_NAME).insert(client);
+    // PostgreSQL will auto-generate the ID with SERIAL
+    const result = await db(TABLE_NAME).insert(clientData_db).returning('*');
 
-    return this.formatClientResponse(client);
+    return this.formatClientResponse(result[0]);
   }
 
   /**
