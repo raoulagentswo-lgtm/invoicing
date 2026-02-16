@@ -6,7 +6,6 @@
  */
 
 import db from '../database/db.js';
-import { v4 as uuidv4 } from 'uuid';
 
 const TABLE_NAME = 'users';
 
@@ -22,10 +21,7 @@ class User {
    * @returns {Promise<Object>} Created user object
    */
   static async create(userData) {
-    const userId = uuidv4();
-    
     const user = {
-      id: userId,
       email: userData.email,
       first_name: userData.firstName,
       last_name: userData.lastName,
@@ -36,9 +32,9 @@ class User {
       updated_at: new Date()
     };
 
-    await db(TABLE_NAME).insert(user);
+    const [createdUser] = await db(TABLE_NAME).insert(user).returning('*');
 
-    return this.formatUserResponse(user);
+    return this.formatUserResponse(createdUser);
   }
 
   /**
