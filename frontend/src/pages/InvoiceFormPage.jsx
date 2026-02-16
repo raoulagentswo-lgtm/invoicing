@@ -32,16 +32,10 @@ export default function InvoiceFormPage() {
   const rawTaxRate = watch('taxRate')
   const taxRate = parseFloat(rawTaxRate) || 0  // Force conversion to number
   
-  // DEBUG: Log all calculations
-  console.log('[DEBUG_FORM_STATE]', {
-    subtotal,
-    rawTaxRate,
-    taxRate,
-    typeOfSubtotal: typeof subtotal,
-    typeOfTaxRate: typeof rawTaxRate,
-    calculatedTaxAmount: subtotal ? (subtotal * taxRate) / 100 : 0,
-    calculatedTotal: subtotal ? subtotal + ((subtotal * taxRate) / 100) : 0
-  })
+  // DEBUG: Log all calculations to document.title (not stripped in production)
+  if (subtotal || rawTaxRate) {
+    document.title = `[INVOICE] sub=${subtotal || 0}, taxRate=${taxRate}, tax=${subtotal ? (subtotal * taxRate) / 100 : 0}`
+  }
   
   const taxAmount = subtotal ? (subtotal * taxRate) / 100 : 0
   const totalAmount = subtotal ? subtotal + taxAmount : 0
