@@ -1,0 +1,55 @@
+{
+  "name": "facturation-app",
+  "version": "0.1.0",
+  "description": "Application de facturation pour freelances et PME",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "build": "echo 'Build script'",
+    "test": "jest --watch",
+    "test:ci": "jest --coverage",
+    "lint": "eslint src tests --ext .js,.jsx",
+    "migrate:latest": "knex migrate:latest",
+    "migrate:rollback": "knex migrate:rollback",
+    "seed": "knex seed:run"
+  },
+  "keywords": [
+    "invoicing",
+    "freelance",
+    "pme",
+    "facturation"
+  ],
+  "author": "Dev Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.1.2",
+    "pg": "^8.11.3",
+    "knex": "^3.1.0",
+    "dotenv": "^16.3.1",
+    "zod": "^3.22.4",
+    "sendgrid": "^6.11.0",
+    "uuid": "^9.0.1",
+    "express-rate-limit": "^7.1.5",
+    "redis": "^4.6.12",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "axios": "^1.6.5",
+    "puppeteer": "^21.6.1",
+    "bull": "^4.11.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.1.5",
+    "eslint": "^8.53.0",
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
