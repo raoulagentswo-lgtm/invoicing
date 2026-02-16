@@ -31,7 +31,6 @@ export default {
   },
   testTimeout: 30000,
   verbose: true,
-  extensionsToTreatAsEsm: ['.js'],
   transform: {},
   transformIgnorePatterns: []
 };
