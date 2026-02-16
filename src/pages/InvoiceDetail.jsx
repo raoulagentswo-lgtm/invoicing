@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/InvoiceDetail.css';
+import InvoicePDFActions from '../components/InvoicePDFActions.jsx';
 
 export default function InvoiceDetail() {
   const { invoiceId } = useParams();
@@ -105,6 +106,13 @@ export default function InvoiceDetail() {
             </button>
           </div>
         </div>
+
+        {/* PDF Actions */}
+        <InvoicePDFActions 
+          invoiceId={invoiceId}
+          invoiceNumber={invoice.invoiceNumber}
+          clientEmail={client?.email}
+        />
 
         {/* Client Information */}
         {client && (
