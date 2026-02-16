@@ -29,7 +29,20 @@ export default function InvoiceFormPage() {
   const [selectedClient, setSelectedClient] = useState('')
 
   const subtotal = watch('subtotalAmount')
-  const taxRate = watch('taxRate')
+  const rawTaxRate = watch('taxRate')
+  const taxRate = parseFloat(rawTaxRate) || 0  // Force conversion to number
+  
+  // DEBUG: Log all calculations
+  console.log('[DEBUG_FORM_STATE]', {
+    subtotal,
+    rawTaxRate,
+    taxRate,
+    typeOfSubtotal: typeof subtotal,
+    typeOfTaxRate: typeof rawTaxRate,
+    calculatedTaxAmount: subtotal ? (subtotal * taxRate) / 100 : 0,
+    calculatedTotal: subtotal ? subtotal + ((subtotal * taxRate) / 100) : 0
+  })
+  
   const taxAmount = subtotal ? (subtotal * taxRate) / 100 : 0
   const totalAmount = subtotal ? subtotal + taxAmount : 0
 
