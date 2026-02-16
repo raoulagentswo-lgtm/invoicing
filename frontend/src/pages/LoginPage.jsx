@@ -13,11 +13,18 @@ export default function LoginPage({ setIsLoggedIn }) {
     setLoading(true)
     try {
       const res = await axios.post('/api/auth/login', data)
-      localStorage.setItem('token', res.data.token)
+      // Backend sends accessToken in res.data.data.accessToken
+      const token = res.data?.data?.accessToken || res.data?.accessToken || res.data?.token
+      if (!token) {
+        throw new Error('No token in response: ' + JSON.stringify(res.data))
+      }
+      localStorage.setItem('token', token)
+      console.log('✅ Token saved to localStorage:', token?.substring(0, 20) + '...')
       setIsLoggedIn(true)
       navigate('/dashboard')
     } catch (err) {
-      setError(err.response?.data?.message || 'Erreur')
+      console.error('Login error:', err)
+      setError(err.response?.data?.message || err.message || 'Erreur')
     }
     setLoading(false)
   }
