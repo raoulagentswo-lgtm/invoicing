@@ -9,6 +9,8 @@ import 'express-async-errors';
 import helmet from 'helmet';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { apiLimiter } from './middleware/rateLimit.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
@@ -18,6 +20,10 @@ import lineItemRoutes from './routes/lineItems.js';
 
 // Load environment variables
 dotenv.config();
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const { PORT = 3000, NODE_ENV = 'development' } = process.env;
 
@@ -69,7 +75,8 @@ app.use('/api/invoices', lineItemRoutes);
 // ===== SPA FALLBACK - React Router =====
 // Serve index.html for all unmatched routes (React Router handles client-side routing)
 app.get('*', (req, res) => {
-  res.sendFile(new URL('../public/index.html', import.meta.url));
+  const publicDir = join(__dirname, '../public');
+  res.sendFile(join(publicDir, 'index.html'));
 });
 
 // ===== ERROR HANDLING =====
