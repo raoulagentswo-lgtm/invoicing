@@ -10,6 +10,8 @@ import { z } from 'zod';
 import { authenticateToken } from '../middleware/auth.js';
 import Invoice from '../models/invoice.js';
 import Client from '../models/client.js';
+import InvoiceStatusHistory from '../models/invoiceStatusHistory.js';
+import { getAllowedNextStatuses } from '../utils/statusTransitions.js';
 
 const router = express.Router();
 
@@ -40,7 +42,13 @@ const updateInvoiceSchema = z.object({
   subtotalAmount: z.number().min(0).optional(),
   paymentTerms: z.string().max(255).optional().nullable(),
   paymentInstructions: z.string().max(1000).optional().nullable(),
-  status: z.enum(['DRAFT', 'SENT', 'VIEWED', 'PAID', 'CANCELLED', 'REFUNDED']).optional()
+  status: z.enum(['DRAFT', 'SENT', 'PAID', 'OVERDUE', 'CANCELLED']).optional()
+});
+
+const statusChangeSchema = z.object({
+  status: z.enum(['DRAFT', 'SENT', 'PAID', 'OVERDUE', 'CANCELLED']),
+  reason: z.string().max(500).optional(),
+  metadata: z.object({}).passthrough().optional()
 });
 
 // ===== MIDDLEWARE =====
@@ -327,6 +335,171 @@ router.delete('/:invoiceId', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to delete invoice'
+    });
+  }
+});
+
+/**
+ * PATCH /api/invoices/:invoiceId/status
+ * Update invoice status with workflow validation
+ * 
+ * Story: EPIC-1-005 - Invoice Workflow
+ */
+router.patch('/:invoiceId/status', async (req, res) => {
+  try {
+    const { invoiceId } = req.params;
+
+    // Validate request body
+    const validatedData = statusChangeSchema.parse(req.body);
+
+    // Check if invoice exists and belongs to user
+    const invoice = await Invoice.findById(invoiceId);
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invoice not found'
+      });
+    }
+
+    if (invoice.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    // Attempt to change status
+    const result = await Invoice.changeStatus(
+      invoiceId,
+      validatedData.status,
+      req.user.id,
+      {
+        reason: validatedData.reason,
+        metadata: validatedData.metadata || {}
+      }
+    );
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status transition not allowed',
+        errors: result.errors
+      });
+    }
+
+    // Get status history
+    const history = await Invoice.getStatusHistory(invoiceId, { limit: 10 });
+
+    res.json({
+      success: true,
+      message: 'Invoice status updated successfully',
+      data: {
+        invoice: result.invoice,
+        history: history
+      }
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.errors.map(e => ({
+          field: e.path.join('.'),
+          message: e.message
+        }))
+      });
+    }
+
+    console.error('Error updating invoice status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update invoice status'
+    });
+  }
+});
+
+/**
+ * GET /api/invoices/:invoiceId/status-history
+ * Get invoice status history
+ * 
+ * Story: EPIC-1-005 - Invoice Workflow
+ */
+router.get('/:invoiceId/status-history', async (req, res) => {
+  try {
+    const { invoiceId } = req.params;
+    const { limit = 50, offset = 0 } = req.query;
+
+    // Check if invoice exists and belongs to user
+    const invoice = await Invoice.findById(invoiceId);
+
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invoice not found'
+      });
+    }
+
+    if (invoice.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    // Get status history
+    const history = await Invoice.getStatusHistory(invoiceId, {
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10)
+    });
+
+    // Get allowed next statuses
+    const allowedNextStatuses = getAllowedNextStatuses(invoice.status);
+
+    res.json({
+      success: true,
+      data: {
+        currentStatus: invoice.status,
+        allowedNextStatuses,
+        history,
+        pagination: {
+          limit: parseInt(limit, 10),
+          offset: parseInt(offset, 10)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching status history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch status history'
+    });
+  }
+});
+
+/**
+ * POST /api/invoices/auto-update-overdue
+ * Auto-mark overdue invoices (SENT with due_date passed)
+ * 
+ * Story: EPIC-1-005 - Invoice Workflow
+ */
+router.post('/auto-update-overdue', async (req, res) => {
+  try {
+    // Auto-update overdue invoices for authenticated user
+    const count = await Invoice.autoUpdateOverdueInvoices(req.user.id);
+
+    res.json({
+      success: true,
+      message: `Updated ${count} invoice(s) to OVERDUE status`,
+      data: {
+        updatedCount: count
+      }
+    });
+  } catch (error) {
+    console.error('Error auto-updating overdue invoices:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to auto-update overdue invoices'
     });
   }
 });

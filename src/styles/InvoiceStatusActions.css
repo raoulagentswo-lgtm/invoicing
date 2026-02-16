@@ -1,0 +1,421 @@
+/**
+ * Invoice Status Actions Styles
+ * Story: EPIC-1-005 - Invoice Workflow (Draft → Sent → Paid)
+ */
+
+.invoice-status-actions {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+/* Current Status Section */
+.current-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.current-status .status-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 60px;
+}
+
+/* Actions Section */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.actions-label {
+  font-weight: 600;
+  color: #495057;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+/* Action Button Styling */
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:not(:disabled):active {
+  transform: translateY(0);
+}
+
+/* Button color variants */
+.action-button.color-primary {
+  background-color: #0066cc;
+  color: white;
+  border-color: #0052a3;
+}
+
+.action-button.color-primary:not(:disabled):hover {
+  background-color: #0052a3;
+  border-color: #003d7a;
+}
+
+.action-button.color-success {
+  background-color: #28a745;
+  color: white;
+  border-color: #1e7e34;
+}
+
+.action-button.color-success:not(:disabled):hover {
+  background-color: #1e7e34;
+  border-color: #155724;
+}
+
+.action-button.color-warning {
+  background-color: #ffc107;
+  color: #212529;
+  border-color: #e0a800;
+}
+
+.action-button.color-warning:not(:disabled):hover {
+  background-color: #e0a800;
+  border-color: #d39e00;
+}
+
+.action-button.color-danger {
+  background-color: #dc3545;
+  color: white;
+  border-color: #bd2130;
+}
+
+.action-button.color-danger:not(:disabled):hover {
+  background-color: #bd2130;
+  border-color: #a71d2a;
+}
+
+.button-icon {
+  font-size: 1.25em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.button-label {
+  font-weight: 600;
+}
+
+/* No Actions State */
+.no-actions {
+  padding: 1.5rem;
+  text-align: center;
+  background-color: #f1f3f5;
+  border-radius: 6px;
+  color: #6c757d;
+}
+
+.no-actions p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Confirmation Dialog */
+.confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.confirmation-dialog {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.confirmation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.confirmation-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #212529;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+.confirmation-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.confirmation-message {
+  margin: 0;
+  font-weight: 600;
+  color: #212529;
+  font-size: 1rem;
+}
+
+.confirmation-description {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Reason Field */
+.reason-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reason-field label {
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.875rem;
+}
+
+.reason-input {
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.reason-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.char-count {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-align: right;
+}
+
+/* Status Preview */
+.status-preview {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.status-arrow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.arrow {
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+/* Footer */
+.confirmation-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e9ecef;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background-color: #e9ecef;
+  color: #212529;
+  border-color: #dee2e6;
+}
+
+.btn-secondary:not(:disabled):hover {
+  background-color: #dee2e6;
+  border-color: #adb5bd;
+}
+
+.btn-primary {
+  background-color: #0066cc;
+  color: white;
+}
+
+.btn-primary:not(:disabled):hover {
+  background-color: #0052a3;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:not(:disabled):hover {
+  background-color: #1e7e34;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:not(:disabled):hover {
+  background-color: #e0a800;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:not(:disabled):hover {
+  background-color: #bd2130;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .invoice-status-actions {
+    padding: 1rem;
+  }
+
+  .current-status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .buttons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+
+  .confirmation-dialog {
+    max-width: 100%;
+    margin: 0 1rem;
+  }
+
+  .confirmation-footer {
+    flex-direction: column-reverse;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .buttons-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

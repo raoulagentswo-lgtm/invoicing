@@ -1,0 +1,170 @@
+/**
+ * Invoice Status Badge Styles
+ * Story: EPIC-1-005 - Invoice Workflow (Draft → Sent → Paid)
+ */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.status-badge.interactive {
+  cursor: pointer;
+}
+
+.status-badge.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Size variants */
+.status-badge.size-small {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.status-badge.size-medium {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.status-badge.size-large {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* Status colors */
+.status-badge.status-draft {
+  background-color: #e8f0f7;
+  color: #0066cc;
+  border: 1px solid #cce0ff;
+}
+
+.status-badge.status-draft.interactive:hover {
+  background-color: #d4e5f2;
+  border-color: #99bbff;
+}
+
+.status-badge.status-sent {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.status-badge.status-sent.interactive:hover {
+  background-color: #ffe5a1;
+  border-color: #ffcc80;
+}
+
+.status-badge.status-paid {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-badge.status-paid.interactive:hover {
+  background-color: #c1e2b3;
+  border-color: #8bc34a;
+}
+
+.status-badge.status-overdue {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-badge.status-overdue.interactive:hover {
+  background-color: #f5c2c7;
+  border-color: #f1808c;
+}
+
+.status-badge.status-cancelled {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d3d6db;
+}
+
+.status-badge.status-cancelled.interactive:hover {
+  background-color: #d3d6db;
+  border-color: #adb5bd;
+}
+
+/* Icon styling */
+.status-badge .status-icon {
+  font-size: 1.25em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.status-badge.size-small .status-icon {
+  font-size: 0.9em;
+}
+
+.status-badge.size-large .status-icon {
+  font-size: 1.5em;
+}
+
+/* Label styling */
+.status-badge .status-label {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Description */
+.status-badge .status-description {
+  position: absolute;
+  bottom: -30px;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: normal;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.status-badge:hover .status-description {
+  opacity: 1;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .status-badge {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .status-badge.size-small {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .status-badge.size-large {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .status-badge .status-icon {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .status-badge {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+  }
+}

@@ -7,6 +7,8 @@
 
 import db from '../database/db.js';
 import LineItem from './lineItem.js';
+import InvoiceStatusHistory from './invoiceStatusHistory.js';
+import { validateStatusTransition, getTimestampToSet, isInvoiceOverdue } from '../utils/statusTransitions.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const TABLE_NAME = 'invoices';
@@ -221,21 +223,149 @@ class Invoice {
   }
 
   /**
-   * Change invoice status
+   * Change invoice status (with validation and audit)
    * 
    * @param {string} invoiceId - Invoice ID
-   * @param {string} status - New status
-   * @returns {Promise<Object>} Updated invoice object
+   * @param {string} newStatus - New status
+   * @param {string} userId - User ID (for audit)
+   * @param {Object} options - Additional options (reason, metadata)
+   * @returns {Promise<{success: boolean, invoice: Object, errors: Array}>}
    */
-  static async updateStatus(invoiceId, status) {
-    await db(TABLE_NAME)
-      .where('id', invoiceId)
-      .update({
-        status: status,
-        updated_at: new Date()
-      });
+  static async changeStatus(invoiceId, newStatus, userId, options = {}) {
+    const { reason = null, metadata = {} } = options;
 
-    return this.findById(invoiceId);
+    try {
+      // Get current invoice
+      const invoice = await this.findById(invoiceId);
+      if (!invoice) {
+        return {
+          success: false,
+          errors: ['Invoice not found']
+        };
+      }
+
+      // Check authorization
+      if (invoice.userId !== userId) {
+        return {
+          success: false,
+          errors: ['Unauthorized']
+        };
+      }
+
+      const currentStatus = invoice.status;
+
+      // Validate transition
+      const validation = await validateStatusTransition(currentStatus, newStatus, invoice);
+      if (!validation.allowed) {
+        return {
+          success: false,
+          errors: validation.errors
+        };
+      }
+
+      // Update invoice
+      const updateData = {
+        status: newStatus,
+        updated_at: new Date()
+      };
+
+      // Set timestamp if required
+      const timestampField = getTimestampToSet(currentStatus, newStatus);
+      if (timestampField) {
+        updateData[timestampField] = new Date();
+      }
+
+      await db(TABLE_NAME)
+        .where('id', invoiceId)
+        .update(updateData);
+
+      // Record in audit log
+      await InvoiceStatusHistory.recordTransition(
+        invoiceId,
+        userId,
+        newStatus,
+        currentStatus,
+        reason,
+        metadata
+      );
+
+      // Return updated invoice
+      const updatedInvoice = await this.findById(invoiceId);
+
+      return {
+        success: true,
+        invoice: updatedInvoice
+      };
+    } catch (error) {
+      return {
+        success: false,
+        errors: [error.message]
+      };
+    }
+  }
+
+  /**
+   * Auto-update invoices to OVERDUE if due date has passed
+   * 
+   * @param {string} userId - User ID
+   * @returns {Promise<number>} Number of invoices updated
+   */
+  static async autoUpdateOverdueInvoices(userId) {
+    let updatedCount = 0;
+
+    try {
+      // Get all SENT invoices for user
+      const sentInvoices = await db(TABLE_NAME)
+        .where('user_id', userId)
+        .where('status', 'SENT')
+        .where('deleted_at', null);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Check each invoice and update if overdue
+      for (const invoice of sentInvoices) {
+        const dueDate = new Date(invoice.due_date);
+        dueDate.setHours(0, 0, 0, 0);
+
+        if (dueDate < today) {
+          // Update status and record transition
+          await db(TABLE_NAME)
+            .where('id', invoice.id)
+            .update({
+              status: 'OVERDUE',
+              updated_at: new Date()
+            });
+
+          await InvoiceStatusHistory.recordTransition(
+            invoice.id,
+            userId,
+            'OVERDUE',
+            'SENT',
+            'Auto-marked as overdue (due date passed)',
+            { automatic: true }
+          );
+
+          updatedCount++;
+        }
+      }
+
+      return updatedCount;
+    } catch (error) {
+      console.error('Error auto-updating overdue invoices:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get invoice status history
+   * 
+   * @param {string} invoiceId - Invoice ID
+   * @param {Object} options - Query options
+   * @returns {Promise<Array>} Status history records
+   */
+  static async getStatusHistory(invoiceId, options = {}) {
+    return InvoiceStatusHistory.getInvoiceHistory(invoiceId, options);
   }
 
   /**
