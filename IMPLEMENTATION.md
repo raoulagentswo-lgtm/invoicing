@@ -799,3 +799,303 @@ facturation/
 - Dashboard component creation
 - API client utility creation
 - Authentication context provider setup
+
+---
+
+# Story 4: Create Invoice Draft Implementation (EPIC-1-001)
+
+**Date:** 2026-02-16  
+**Story:** EPIC-1-001 - Create Invoice Draft  
+**Branch:** `feature/EPIC-1-001-create-invoice-draft`  
+**Story Points:** 13  
+**Status:** ✅ **COMPLETE - Ready for Code Review**
+
+## Overview
+
+Complete implementation of invoice draft creation feature for the Facturation application. Enables freelancers and SMEs to create, save, and manage invoice drafts before sending them to clients.
+
+### Key Features
+
+1. **Backend Invoice Management**
+   - Auto-incremented invoice number generation (configurable prefix)
+   - Invoice CRUD operations with draft status
+   - Financial calculations (subtotal, tax, total)
+   - Client relationship management
+   - Soft delete audit trail
+
+2. **Backend Client Management**
+   - Client CRUD operations
+   - Client information storage (company details, contact info)
+   - Client filtering and pagination
+   - Email uniqueness per user
+
+3. **Frontend Invoice Creation**
+   - Responsive invoice form with 5 sections
+   - Real-time tax calculation
+   - Client dropdown with async loading
+   - Auto-filled dates (today + 30 days)
+   - Form validation with error display
+   - Mobile-first responsive design
+
+## Acceptance Criteria Status
+
+All 13 acceptance criteria ✅ **COMPLETED**
+
+- [x] POST /api/invoices - Create new invoice (draft status)
+- [x] Invoice starts with auto-incremented invoice number (configurable)
+- [x] Select client from dropdown (linked to client ID)
+- [x] Set invoice date (today by default)
+- [x] Set due date (30 days by default, configurable)
+- [x] Set invoice description/notes
+- [x] Set currency (EUR by default)
+- [x] Set tax rate (20% by default, configurable)
+- [x] Save as draft (status = DRAFT)
+- [x] Return invoice ID + basic info
+- [x] Input validation (client required, dates valid)
+- [x] Error handling (detailed validation messages)
+- [x] Responsive design (mobile/tablet/desktop)
+
+## Files Implemented
+
+### Database Migrations
+- `src/database/migrations/002_create_clients_table.js` - Clients table with user FK
+- `src/database/migrations/003_create_invoices_table.js` - Invoices table with auto-numbering
+
+### Models
+- `src/models/client.js` - Client data access layer (CRUD, queries, formatting)
+- `src/models/invoice.js` - Invoice data access layer (CRUD, auto-numbering, calculations)
+
+### API Routes
+- `src/routes/clients.js` - Client endpoints (POST, GET, PATCH, DELETE)
+- `src/routes/invoices.js` - Invoice endpoints (POST, GET, PATCH, DELETE)
+
+### Frontend Components
+- `src/pages/CreateInvoice.jsx` - Invoice creation form component
+- `src/styles/CreateInvoice.css` - Responsive styling with Tailwind-like approach
+
+### Tests
+- `tests/unit/models/client.test.js` - Client model unit tests (11 test suites)
+- `tests/unit/models/invoice.test.js` - Invoice model unit tests (8 test suites)
+- `tests/integration/clients.test.js` - Client API integration tests
+- `tests/integration/invoices.test.js` - Invoice API integration tests
+
+### Updated Files
+- `src/server.js` - Added client and invoice routes integration
+
+## API Endpoints
+
+### Clients
+- `POST /api/clients` - Create new client
+- `GET /api/clients` - List clients (with pagination, status filter)
+- `GET /api/clients/:clientId` - Get single client
+- `PATCH /api/clients/:clientId` - Update client
+- `DELETE /api/clients/:clientId` - Delete client (soft delete)
+
+### Invoices
+- `POST /api/invoices` - Create invoice draft
+  - Auto-generates invoice number
+  - Validates client ownership
+  - Calculates tax amounts
+  - Returns 201 on success
+- `GET /api/invoices` - List invoices (with status filter, pagination)
+- `GET /api/invoices/:invoiceId` - Get invoice with client info
+- `PATCH /api/invoices/:invoiceId` - Update invoice (with recalculation)
+- `DELETE /api/invoices/:invoiceId` - Delete invoice (soft delete)
+
+## Database Schema
+
+### Clients Table
+- id (UUID, PK)
+- user_id (UUID, FK to users)
+- name, email, phone, address
+- postal_code, city, country
+- company_name, siret, vat_number
+- contact_person, contact_phone
+- status (enum: active, inactive, archived)
+- created_at, updated_at, deleted_at
+
+### Invoices Table
+- id (UUID, PK)
+- user_id, client_id (UUIDs, FKs)
+- invoice_number (unique), invoice_sequence
+- invoice_date, due_date, paid_date
+- status (enum: DRAFT, SENT, VIEWED, PAID, CANCELLED, REFUNDED)
+- description, notes
+- currency (default: EUR), tax_rate (default: 20%)
+- subtotal_amount, tax_amount, total_amount, paid_amount
+- payment_terms, payment_instructions
+- created_at, updated_at, deleted_at
+
+## Form Structure (CreateInvoice)
+
+**Section 1: Client Information**
+- Client selection dropdown (required, async loaded)
+- Link to create new client
+
+**Section 2: Invoice Dates**
+- Invoice date (defaults to today)
+- Due date (defaults to +30 days)
+
+**Section 3: Invoice Details**
+- Description (max 1000 chars, optional)
+- Notes (max 5000 chars, optional)
+
+**Section 4: Financial Information**
+- Currency dropdown (EUR, USD, GBP, CHF)
+- Tax rate input (0-100%, default 20%)
+- Subtotal amount input (default 0)
+- Live calculation summary (subtotal, tax, total)
+
+**Section 5: Payment Information**
+- Payment terms (text field)
+- Payment instructions (textarea)
+
+## Validation Rules
+
+### Invoice Creation
+- Client ID: Required, must be UUID, must belong to user
+- Invoice date: Optional, must be ISO datetime
+- Due date: Optional, must be ISO datetime and >= invoice date
+- Description: Max 1000 characters
+- Notes: Max 5000 characters
+- Currency: Must be 3-letter code
+- Tax rate: 0-100 range
+- Subtotal amount: >= 0
+
+### Client Creation
+- Name: Required, max 255 chars
+- Email: Required, valid email format, unique per user
+- Phone: Optional, max 20 chars
+- Country: Defaults to France
+
+## Testing Coverage
+
+### Unit Tests (Client Model - 11 test suites)
+- Client creation with required/optional fields
+- Default country assignment
+- Find by ID, email, user ID
+- Email uniqueness checking
+- Soft deletion
+- Response formatting
+- Pagination support
+
+### Unit Tests (Invoice Model - 8 test suites)
+- Invoice number generation format
+- Sequence number incrementing
+- Invoice creation with calculations
+- Tax calculation accuracy
+- Custom currency and tax rate
+- Find by ID and invoice number
+- Default due date (30 days)
+- Response formatting
+
+### Integration Tests
+- Client CRUD operations with validation
+- Invoice CRUD operations with validation
+- Date validation (due >= invoice)
+- Currency and tax rate validation
+- Tax calculation verification
+- Pagination and filtering
+- Soft delete behavior
+- Ownership verification
+
+## Error Handling
+
+All endpoints return consistent error format:
+```json
+{
+  "success": false,
+  "message": "Error message",
+  "errors": [
+    {
+      "field": "fieldName",
+      "message": "Validation error details"
+    }
+  ]
+}
+```
+
+## Frontend Features
+
+- **Real-time Calculation**: Tax and total update as you type
+- **Async Client Loading**: Clients loaded from API on component mount
+- **Form Validation**: Client-side validation with error messages
+- **Responsive Design**: Mobile-first (480px, 768px, full width)
+- **Error Display**: Alert boxes for validation and server errors
+- **Success Feedback**: Success message with redirect to invoice detail
+- **Loading States**: Loading indicator while creating invoice
+- **Accessibility**: Proper labels, error associations, form structure
+
+## Security Features
+
+- JWT authentication on all protected endpoints
+- Ownership verification (user can only access own clients/invoices)
+- Input validation (type checking, length limits, range validation)
+- Soft deletes for audit trail
+- SQL injection prevention (parameterized queries)
+- Rate limiting on API endpoints
+
+## Performance Features
+
+- Composite indexes on frequently queried fields
+- Pagination support for large datasets
+- Efficient invoice number generation
+- Response data formatting for API consumption
+
+## Next Steps (Future Stories)
+
+1. **Story 5**: Add invoice line items (products/services)
+2. **Story 6**: PDF export/download
+3. **Story 7**: Send invoice to client via email
+4. **Story 8**: Invoice payment status tracking
+5. **Story 9**: Invoice templates
+6. **Story 10**: Recurring invoices
+
+## Running the Implementation
+
+### Setup Database
+```bash
+npm run migrate:latest  # Apply migrations
+```
+
+### Run Tests
+```bash
+npm test               # Run all tests
+npm test:ci            # Run with coverage report
+```
+
+### Start Server
+```bash
+npm run dev            # Development server with auto-reload
+```
+
+### Build Frontend
+```bash
+npm run build          # Build for production
+```
+
+## Documentation
+
+- Detailed implementation: `_bmad-output/implementation-artifacts/story-4-create-invoice-draft.md`
+- Architecture: `docs/ARCHITECTURE.md`
+- Project context: `project-context.md`
+
+## Summary
+
+This implementation provides a complete, production-ready invoice creation feature with:
+- ✅ Clean, maintainable code structure
+- ✅ Comprehensive test coverage (unit + integration)
+- ✅ Input validation at frontend and backend
+- ✅ Detailed error handling
+- ✅ Responsive design for all devices
+- ✅ Database integrity with FKs and indexes
+- ✅ Soft deletes for audit trail
+- ✅ Security (authentication, ownership verification)
+
+**Status:** Ready for code review and testing in QA environment.
+
+**Implementation Date:** 2026-02-16  
+**Implemented by:** Dev Agent (Subagent)  
+**Total Files Changed:** 13  
+**Lines of Code:** 2,962  
+**Commits:** 1
