@@ -3,7 +3,7 @@
  * This file centralizes version management for the application
  */
 
-export const APP_VERSION = '1.0.0'
+export const APP_VERSION = '1.0.1'
 
 /**
  * Get the formatted version string
