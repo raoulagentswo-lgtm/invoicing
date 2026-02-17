@@ -9,7 +9,6 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
-import { getFormattedVersion } from '../config/version'
 
 export default function LoginPage({ setIsLoggedIn }) {
   const navigate = useNavigate()
@@ -399,19 +398,6 @@ export default function LoginPage({ setIsLoggedIn }) {
             <span style={{ fontWeight: 'var(--font-weight-semibold)' }}>⏱️ Limitation:</span> Maximum 10 tentatives par 15 minutes.
           </p>
         </div>
-      </div>
-
-      {/* Version Display - Bottom Right */}
-      <div style={{
-        position: 'fixed',
-        bottom: 'var(--spacing-md)',
-        right: 'var(--spacing-md)',
-        fontSize: 'var(--font-size-xs)',
-        color: 'var(--color-text-secondary)',
-        opacity: 0.6,
-        fontWeight: 'var(--font-weight-medium)',
-      }}>
-        {getFormattedVersion()}
       </div>
     </div>
   )

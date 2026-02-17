@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getFormattedVersion } from '../config/version'
 
 export default function VersionBadge() {
   const [commitHash, setCommitHash] = useState('')
@@ -31,7 +32,7 @@ export default function VersionBadge() {
       onMouseEnter={(e) => e.target.style.opacity = '1'}
       onMouseLeave={(e) => e.target.style.opacity = '0.6'}
     >
-      v1.0.0
+      {getFormattedVersion()}
     </div>
   )
 }
