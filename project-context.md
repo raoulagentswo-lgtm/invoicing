@@ -89,3 +89,14 @@ Phase 2 progresse bien. Sally travaille sur la spec UX pour finaliser le plannin
 - 2026-02-16: Added comprehensive logging to RegisterPage.jsx and auth.js register endpoint
 - Purpose: Debug PASSWORD_MISMATCH error and track form submission flow
 - Logs include form data validation, password matching, and API response handling
+
+## Implementation - Version Display Fix
+- 2026-02-17: **Fixed UX duplication** - version display showing twice on login page
+- **Problem:** VersionBadge.jsx and LoginPage.jsx were both showing "v1.0.0" at same position (bottom-right)
+- **Solution (Option 1):** 
+  - Removed version display from LoginPage.jsx
+  - Updated VersionBadge.jsx to use `getFormattedVersion()` from version.js
+  - Centralized version management in single component
+- **Commit:** 8188d29 - "fix: Remove duplicate version display from LoginPage"
+- **Status:** Submitted to Quinn (QA) for re-testing
+- **Details:** See QA_FIX_REPORT_VERSION_DUPLICATION.md

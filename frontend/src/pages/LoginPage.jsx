@@ -75,6 +75,9 @@ export default function LoginPage({ setIsLoggedIn }) {
     }
   }
 
+  // Responsive styles helper
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+  
   return (
     <div style={{
       display: 'flex',
@@ -82,15 +85,15 @@ export default function LoginPage({ setIsLoggedIn }) {
       alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(to bottom right, var(--color-primary-50), var(--color-primary-100))',
-      padding: 'var(--spacing-lg)',
+      padding: isMobile ? 'var(--spacing-md)' : 'var(--spacing-lg)',
       position: 'relative',
     }}>
       <div style={{
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: isMobile ? '100%' : '420px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--spacing-lg)',
+        gap: isMobile ? 'var(--spacing-md)' : 'var(--spacing-lg)',
       }}>
         {/* Header */}
         <div style={{ textAlign: 'center' }}>
@@ -159,9 +162,9 @@ export default function LoginPage({ setIsLoggedIn }) {
         <form onSubmit={handleSubmit(onSubmit)} style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--spacing-md)',
+          gap: isMobile ? 'var(--spacing-sm)' : 'var(--spacing-md)',
           backgroundColor: 'var(--color-bg)',
-          padding: 'var(--spacing-lg)',
+          padding: isMobile ? 'var(--spacing-md)' : 'var(--spacing-lg)',
           borderRadius: 'var(--border-radius-lg)',
           boxShadow: 'var(--shadow-lg)',
         }}>
@@ -297,8 +300,10 @@ export default function LoginPage({ setIsLoggedIn }) {
               type="checkbox"
               id="rememberMe"
               style={{
-                width: '16px',
-                height: '16px',
+                width: '20px',
+                height: '20px',
+                minWidth: '20px',
+                minHeight: '20px',
                 borderRadius: '4px',
                 borderColor: 'var(--color-border)',
                 color: 'var(--color-primary)',
@@ -313,6 +318,9 @@ export default function LoginPage({ setIsLoggedIn }) {
               fontSize: 'var(--font-size-sm)',
               color: 'var(--color-text-primary)',
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              minHeight: '44px',
             }}>
               Se souvenir de moi (90 jours)
             </label>

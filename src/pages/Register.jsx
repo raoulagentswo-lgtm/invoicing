@@ -115,7 +115,7 @@ export default function Register() {
               type="email"
               id="email"
               placeholder="you@example.com"
-              className={`mt-2 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`mt-2 w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
               {...register('email', {
@@ -133,7 +133,7 @@ export default function Register() {
           </div>
 
           {/* First Name & Last Name Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* First Name */}
             <div>
               <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700">
@@ -143,7 +143,7 @@ export default function Register() {
                 type="text"
                 id="firstName"
                 placeholder="John"
-                className={`mt-2 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`mt-2 w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.firstName ? 'border-red-500' : 'border-gray-300'
                 }`}
                 {...register('firstName', {
@@ -173,7 +173,7 @@ export default function Register() {
                 type="text"
                 id="lastName"
                 placeholder="Doe"
-                className={`mt-2 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`mt-2 w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.lastName ? 'border-red-500' : 'border-gray-300'
                 }`}
                 {...register('lastName', {
@@ -204,7 +204,7 @@ export default function Register() {
               type="password"
               id="password"
               placeholder="••••••••"
-              className={`mt-2 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`mt-2 w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.password ? 'border-red-500' : 'border-gray-300'
               }`}
               {...register('password', {
@@ -248,7 +248,7 @@ export default function Register() {
               type="password"
               id="passwordConfirmation"
               placeholder="••••••••"
-              className={`mt-2 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`mt-2 w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.passwordConfirmation ? 'border-red-500' : 'border-gray-300'
               }`}
               {...register('passwordConfirmation', {

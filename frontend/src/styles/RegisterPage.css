@@ -1,0 +1,91 @@
+/* RegisterPage Styles - Responsive Design */
+
+.register-page {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, var(--color-primary-50), var(--color-primary-100));
+  padding: var(--spacing-lg);
+  position: relative;
+}
+
+.register-page-inner {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.register-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background-color: var(--color-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Name Fields Grid - RESPONSIVE */
+.register-name-fields {
+  display: grid;
+  gridTemplateColumns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+/* Mobile: Switch to single column */
+@media (max-width: 768px) {
+  .register-page {
+    padding: var(--spacing-md);
+  }
+
+  .register-page-inner {
+    max-width: 100%;
+  }
+
+  .register-form-container {
+    padding: var(--spacing-md);
+  }
+
+  .register-name-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .register-page {
+    padding: var(--spacing-sm);
+  }
+
+  .register-form-container {
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm) !important;
+  }
+  
+  .register-name-fields {
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 390px) {
+  .register-page {
+    padding: var(--spacing-xs);
+  }
+
+  .register-page-inner {
+    gap: var(--spacing-md);
+  }
+
+  .register-form-container {
+    padding: var(--spacing-md);
+    gap: var(--spacing-xs) !important;
+    border-radius: var(--border-radius-md);
+  }
+  
+  .register-name-fields {
+    gap: var(--spacing-xs);
+  }
+}

@@ -26,6 +26,24 @@
   text-align: center;
 }
 
+@media (max-width: 768px) {
+  .card-header {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .card-header {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .card-header {
+    padding: 0.75rem;
+  }
+}
+
 .card-header h1 {
   margin: 0;
   font-size: 2rem;
@@ -104,6 +122,16 @@
   font-family: inherit;
   transition: border-color 0.3s ease;
   box-sizing: border-box;
+  min-height: 44px;
+}
+
+@media (max-width: 768px) {
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px;
+    min-height: 44px;
+  }
 }
 
 .form-group input:focus,
@@ -175,7 +203,11 @@
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .btn-primary {
@@ -241,13 +273,21 @@
   }
 }
 
+@media (max-width: 640px) {
+  .client-form {
+    padding: 1.5rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .create-client-container {
     margin: 0.5rem auto;
-  }
-
-  .card-header {
-    padding: 1rem;
+    padding: 0 0.5rem;
   }
 
   .card-header h1 {
@@ -274,11 +314,41 @@
   .form-group input,
   .form-group textarea,
   .form-group select {
-    padding: 0.6rem;
+    padding: 0.75rem;
     font-size: 16px;
+    min-height: 44px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 390px) {
+  .create-client-container {
+    padding: 0 0.5rem;
+  }
+
+  .client-form {
+    padding: 0.75rem;
+  }
+
+  .form-section {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
   }
 }

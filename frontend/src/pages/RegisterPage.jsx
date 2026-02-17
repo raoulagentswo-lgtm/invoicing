@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import axios from 'axios'
+import '../styles/RegisterPage.css'
 
 const schema = z.object({
   email: z.string().email('Email invalide'),
@@ -69,21 +70,15 @@ export default function RegisterPage() {
     setLoading(false)
   }
 
+  // Responsive styles helper
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+
   return (
-    <div style={{
-      display: 'flex',
-      minHeight: '100vh',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(to bottom right, var(--color-primary-50), var(--color-primary-100))',
-      padding: 'var(--spacing-lg)',
+    <div className="register-page" style={{
+      padding: isMobile ? 'var(--spacing-md)' : 'var(--spacing-lg)',
     }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '480px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--spacing-lg)',
+      <div className="register-page-inner" style={{
+        maxWidth: isMobile ? '100%' : '480px',
       }}>
         {/* Header */}
         <div style={{ textAlign: 'center' }}>
@@ -140,14 +135,9 @@ export default function RegisterPage() {
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit(onSubmit)} style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--spacing-md)',
-          backgroundColor: 'var(--color-bg)',
-          padding: 'var(--spacing-lg)',
-          borderRadius: 'var(--border-radius-lg)',
-          boxShadow: 'var(--shadow-lg)',
+        <form onSubmit={handleSubmit(onSubmit)} className="register-form-container" style={{
+          padding: isMobile ? 'var(--spacing-md)' : 'var(--spacing-lg)',
+          gap: isMobile ? 'var(--spacing-sm)' : 'var(--spacing-md)',
         }}>
           {/* Email Field */}
           <div>
@@ -201,11 +191,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Name Fields */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 'var(--spacing-md)',
-          }}>
+          <div className="register-name-fields">
             {/* First Name */}
             <div>
               <label htmlFor="firstName" style={{

@@ -151,7 +151,7 @@ export default function Login() {
               type="email"
               id="email"
               placeholder="you@example.com"
-              className={`mt-2 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+              className={`mt-2 w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
               {...register('email', {
@@ -181,7 +181,7 @@ export default function Login() {
               type="password"
               id="password"
               placeholder="••••••••"
-              className={`mt-2 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+              className={`mt-2 w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
                 errors.password ? 'border-red-500' : 'border-gray-300'
               }`}
               {...register('password', {
@@ -200,7 +200,7 @@ export default function Login() {
             <input
               type="checkbox"
               id="rememberMe"
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              className="h-6 w-6 md:h-4 md:w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
               {...register('rememberMe')}
               disabled={isLoading}
             />
@@ -239,6 +239,11 @@ export default function Login() {
           <p className="text-sm text-yellow-800">
             <span className="font-semibold">⏱️ Rate Limiting:</span> Maximum 10 login attempts allowed per 15 minutes. Account will lock after 5 failed attempts for 15 minutes.
           </p>
+        </div>
+
+        {/* Version Display */}
+        <div className="text-right text-xs text-gray-500 pr-2">
+          v1.0.0
         </div>
       </div>
     </div>

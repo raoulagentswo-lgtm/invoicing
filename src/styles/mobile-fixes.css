@@ -1,0 +1,127 @@
+/**
+ * Global Mobile Responsive Fixes
+ * Priority: Must be included after other stylesheets
+ * Date: 2026-02-17
+ */
+
+/* Ensure viewport is properly configured */
+html, body {
+  width: 100%;
+  overflow-x: hidden; /* Prevent accidental horizontal scroll */
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Standard sizing for all interactive elements on mobile */
+@media (max-width: 768px) {
+  button, 
+  input[type="button"], 
+  input[type="submit"],
+  a[role="button"],
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-sm,
+  .btn-pagination,
+  .btn-page {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    min-height: 44px;
+    padding: 0.75rem;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Prevent font zoom on input focus on iOS */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Ensure labels have enough spacing */
+  label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* Space between form groups */
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Reduce excessive padding on containers */
+  .container,
+  [class*="container"] {
+    padding: 0.75rem;
+  }
+
+  /* Buttons should be easy to tap */
+  button {
+    gap: 0.5rem;
+  }
+}
+
+/* Extra tight fixes for very small phones (< 390px) */
+@media (max-width: 390px) {
+  .container,
+  [class*="container"] {
+    padding: 0.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* Critical: prevents zoom on iOS */
+  }
+
+  /* Reduce modal padding on small screens */
+  .modal-content,
+  [class*="modal"] {
+    padding: 1rem;
+    max-width: 100%;
+    margin: 0 0.5rem;
+  }
+}
+
+/* Checkboxes & Radios - larger touch targets */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+  }
+}
