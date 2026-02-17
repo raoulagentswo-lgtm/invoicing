@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navigation from '../components/Navigation'
 import axios from 'axios'
 
 export default function InvoicesListPage() {
@@ -84,14 +85,16 @@ export default function InvoicesListPage() {
       paddingBottom: 'var(--spacing-lg)',
     }}>
       {/* Navigation Bar */}
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+      <Navigation />
+
+      {/* Page Title & Actions */}
+      <div style={{
         padding: 'var(--spacing-lg)',
         backgroundColor: 'var(--color-bg-primary)',
         borderBottom: 'var(--nav-topbar-border)',
-        boxShadow: 'var(--shadow-card)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       }}>
         <h1 style={{
           fontSize: 'var(--font-size-h2)',
@@ -102,28 +105,6 @@ export default function InvoicesListPage() {
           📄 Factures
         </h1>
         <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-          <button
-            onClick={() => navigate('/dashboard')}
-            style={{
-              padding: 'var(--spacing-sm) var(--spacing-md)',
-              borderRadius: 'var(--border-radius-md)',
-              border: 'none',
-              backgroundColor: 'var(--color-bg-secondary)',
-              color: 'var(--color-text-primary)',
-              fontSize: 'var(--font-size-base)',
-              fontWeight: 'var(--font-weight-medium)',
-              cursor: 'pointer',
-              transition: `background-color var(--transition-fast)`,
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'var(--nav-item-bg-active)'
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'var(--color-bg-secondary)'
-            }}
-          >
-            📊 Dashboard
-          </button>
           <button
             onClick={() => navigate('/invoices/create')}
             style={{
@@ -147,7 +128,7 @@ export default function InvoicesListPage() {
             ➕ Nouvelle facture
           </button>
         </div>
-      </nav>
+      </div>
 
       {/* Main Content */}
       <div style={{

@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import Navigation from '../components/Navigation'
 import axios from 'axios'
 
 export default function InvoiceDetailPage() {
@@ -186,14 +187,16 @@ export default function InvoiceDetailPage() {
       paddingBottom: 'var(--spacing-lg)',
     }}>
       {/* Navigation Bar */}
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+      <Navigation />
+
+      {/* Page Title */}
+      <div style={{
         padding: 'var(--spacing-lg)',
         backgroundColor: 'var(--color-bg-primary)',
         borderBottom: 'var(--nav-topbar-border)',
-        boxShadow: 'var(--shadow-card)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       }}>
         <h1 style={{
           fontSize: 'var(--font-size-h2)',
@@ -201,7 +204,7 @@ export default function InvoiceDetailPage() {
           color: 'var(--color-primary)',
           margin: '0',
         }}>
-          📄 Facture {invoice.invoice_number || id}
+          📄 Facture {invoice?.invoice_number || id}
         </h1>
         <button
           onClick={() => navigate('/invoices')}
@@ -225,7 +228,7 @@ export default function InvoiceDetailPage() {
         >
           ← Retour
         </button>
-      </nav>
+      </div>
 
       {/* Main Content */}
       <div style={{

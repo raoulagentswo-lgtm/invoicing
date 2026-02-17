@@ -10,6 +10,7 @@ import ClientFormPage from './pages/ClientFormPage'
 import InvoicesListPage from './pages/InvoicesListPage'
 import InvoiceFormPage from './pages/InvoiceFormPage'
 import InvoiceDetailPage from './pages/InvoiceDetailPage'
+import ProfilePage from './pages/ProfilePage'
 import DebugPage from './pages/DebugPage'
 import VersionBadge from './components/VersionBadge'
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/invoices/create" element={isLoggedIn ? <InvoiceFormPage /> : <Navigate to="/login" />} />
           <Route path="/invoices/:id" element={isLoggedIn ? <InvoiceDetailPage /> : <Navigate to="/login" />} />
           <Route path="/invoices/:id/edit" element={isLoggedIn ? <InvoiceFormPage /> : <Navigate to="/login" />} />
+          <Route path="/profile" element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />} />
           <Route path="/" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />} />
         </Routes>
       </BrowserRouter>

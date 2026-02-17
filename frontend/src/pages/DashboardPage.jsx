@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Navigation from '../components/Navigation'
 import axios from 'axios'
 
 export default function DashboardPage() {
@@ -21,17 +22,6 @@ export default function DashboardPage() {
     }).then(r => setUser(r.data))
   }, [token])
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    window.location.href = '/login'
-  }
-
-  const navItems = [
-    { label: 'Factures', icon: '📄', path: '/invoices' },
-    { label: 'Clients', icon: '👥', path: '/clients' },
-    { label: 'Profil', icon: '⚙️', path: '/profile' },
-  ]
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -39,78 +29,7 @@ export default function DashboardPage() {
       paddingBottom: 'var(--spacing-lg)',
     }}>
       {/* Navigation Bar */}
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 'var(--spacing-lg)',
-        backgroundColor: 'var(--color-bg-primary)',
-        borderBottom: 'var(--nav-topbar-border)',
-        boxShadow: 'var(--shadow-card)',
-      }}>
-        <div style={{
-          fontSize: 'var(--font-size-h2)',
-          fontWeight: 'var(--font-weight-bold)',
-          color: 'var(--color-primary)',
-        }}>
-          📊 Facturation
-        </div>
-        <div style={{
-          display: 'flex',
-          gap: 'var(--spacing-md)',
-          alignItems: 'center',
-        }}>
-          {navItems.map((item) => (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                borderRadius: 'var(--border-radius-md)',
-                border: 'none',
-                backgroundColor: 'var(--color-bg-secondary)',
-                color: 'var(--color-text-primary)',
-                fontSize: 'var(--font-size-base)',
-                fontWeight: 'var(--font-weight-medium)',
-                cursor: 'pointer',
-                transition: `background-color var(--transition-fast), color var(--transition-fast)`,
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'var(--nav-item-bg-active)'
-                e.target.style.color = 'var(--color-primary)'
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'var(--color-bg-secondary)'
-                e.target.style.color = 'var(--color-text-primary)'
-              }}
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: 'var(--spacing-sm) var(--spacing-md)',
-              borderRadius: 'var(--border-radius-md)',
-              border: 'none',
-              backgroundColor: '#FEE2E2',
-              color: '#7C2D12',
-              fontSize: 'var(--font-size-base)',
-              fontWeight: 'var(--font-weight-medium)',
-              cursor: 'pointer',
-              transition: `background-color var(--transition-fast)`,
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#FECACA'
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = '#FEE2E2'
-            }}
-          >
-            🚪 Déconnexion
-          </button>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Main Content */}
       <div style={{
